@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "1048279874447",
+    "firebase_url": "https://fbhecc.firebaseio.com",
+    "project_id": "fbhecc",
+    "storage_bucket": "fbhecc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048279874447:android:582f1e46547ab969",
+        "android_client_info": {
+          "package_name": "com.apphec"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1048279874447-h1ggdi2htuhke7sepd9nn5h1jejskrd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT4gKEIdjPz9jzA21NhbK2dtY1idtCbkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1048279874447-h1ggdi2htuhke7sepd9nn5h1jejskrd1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048279874447:android:814aa89c84de567e11a9fa",
+        "android_client_info": {
+          "package_name": "com.hec.hec"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1048279874447-rjk29gscf1ctg8m4omtngu3h8e973aqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hec.hec",
+            "certificate_hash": "4e8cb50bd233aca71bdbbd9262d321bb6ff03216"
+          }
+        },
+        {
+          "client_id": "1048279874447-h1ggdi2htuhke7sepd9nn5h1jejskrd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT4gKEIdjPz9jzA21NhbK2dtY1idtCbkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1048279874447-h1ggdi2htuhke7sepd9nn5h1jejskrd1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

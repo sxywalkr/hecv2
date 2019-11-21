@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Hec</string>
+    <string name="facebook_app_id">518034165641652</string>
+    <string name="fb_login_protocol_scheme">fb518034165641652</string>
+</resources>
