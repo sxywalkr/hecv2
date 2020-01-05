@@ -14,8 +14,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
 
 function EditProfile() {
+  GoogleSignin.configure({});
   const user = auth().currentUser;
-
   const [error, setError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [savingName, setSavingName] = useState(false);
@@ -34,6 +34,7 @@ function EditProfile() {
   }, [error]);
 
   async function signOut() {
+    
     setSigningOut(true);
     await GoogleSignin.signOut();
     await auth().signOut();

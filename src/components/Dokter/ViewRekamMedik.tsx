@@ -1,85 +1,177 @@
 import dayjs from 'dayjs';
-import React, {useContext} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import {
   Avatar,
   Caption,
   FAB,
+  Portal,
+  Provider,
   Headline,
   Subheading,
+  Paragraph,
+  Button,
   Theme,
   Title,
   withTheme,
+  IconButton,
+  Colors,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {NavigationParams} from 'react-navigation';
-import {UserContext} from '../../App';
+import database from '@react-native-firebase/database';
+import { NavigationParams, NavigationRoute } from 'react-navigation';
+import { UserContext } from '../../App';
 import Hero from '../Hero';
-import {getProviders} from '../../util/helpers';
+import { getProviders } from '../../util/helpers';
 
 interface Props {
   theme: Theme;
   navigation: NavigationParams;
+  route: NavigationRoute;
 }
 
-function Profile({theme, navigation}: Props) {
+function Profile({ theme, navigation, route }: Props) {
+  const { q } = route.params;
   const user = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
+  const [loadingObat, setLoadingObat] = useState(true);
+  const [loadingSelectedObat, setLoadingSelectedObat] = useState(true);
+  const [items, setItems] = useState([]);
+  const [itemsObat, setItemsObat] = useState([]);
+  const [itemsFilteredObat, setItemsFilteredObat] = useState([]);
+  const [itemsTindakan, setItemsTindakan] = useState([]);
+  const [openFab, setOpenFab] = useState(false);
+  const [openDiagObat, setOpenDiagObat] = useState(false);
+  const [openDiagTindakan, setOpenDiagTindakan] = useState(false);
+  const [selectedItemsObat, setSelectedItemsObat] = useState([]);
+  const [selectedItemsTindakan, setSelectedItemsTindakan] = useState([]);
 
   if (!user) {
     return null;
   }
 
-  // Array of providers the the user is linked with
-  const providers = getProviders(user);
+  useEffect(() => {
+    // console.log(q)
+    const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
+    ref.on('value', onSnapshot);
+    return () => { ref.off() }
+  }, [items]);
+
+  function onSnapshot(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().userUid,
+        ...item.val(),
+      });
+    });
+    setItems(list);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    const ref = database().ref(`obat`)
+    ref.on('value', onSnapshotObat);
+    return () => { ref.off() }
+  }, [loadingObat]);
+
+  function onSnapshotObat(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdObat,
+        selectedObat: false,
+        selectedJumlahObat: 0,
+        ...item.val(),
+      });
+    });
+    setItemsObat(list);
+    // setItemsFilteredObat(list);
+    setLoadingObat(false);
+  }
+
+  useEffect(() => {
+    const filteredObat = itemsObat.filter((el) => el.selectedObat === true)
+    setItemsFilteredObat(filteredObat)
+    // console.log(itemsFilteredObat);
+    setLoadingSelectedObat(false)
+  }, [loadingSelectedObat])
+
+  const onSelectObat = (q) => {
+    itemsObat[q].selectedObat = !itemsObat[q].selectedObat
+    itemsObat[q].selectedJumlahObat = 1
+    setLoadingSelectedObat(true)
+  }
 
   return (
     <View style={styles.container}>
-      <Hero height={120} colors={['#15212B', '#15212B']} />
-      <View style={[styles.content, styles.profile]}>
-        {user.photoURL ? (
-          <Avatar.Image size={80} source={{uri: user.photoURL}} />
-        ) : (
-          <Avatar.Text
-            size={80}
-            label={user.email ? user.email.substring(0, 2).toUpperCase() : 'A'}
-            style={styles.avatar}
-          />
-        )}
-      </View>
       <View style={styles.content}>
-        <Headline>
-          {user.displayName ? user.displayName : user.email}{' '}
-          {user.emailVerified && (
-            <Icon name="check-decagram" color="#2196f3" size={26} />
-          )}
-        </Headline>
-        {!!user.displayName && <Title>{user.email}</Title>}
-        {!!user.phoneNumber && <Subheading>{user.phoneNumber}</Subheading>}
-        {!!user.metadata.lastSignInTime && (
-          <Caption>
-            {`Last sign-in: ${dayjs(user.metadata.lastSignInTime).format(
-              'DD/MM/YYYY HH:mm',
-            )}`}
-          </Caption>
-        )}
+        <Title>{q.userName}</Title>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconButton icon={itemsFilteredObat.length > 0 ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20} />
+          <Paragraph>Diagnosa Obat</Paragraph>
+        </View>
       </View>
-      {/* <View style={styles.providers}>
-        <Provider type="password" active={providers.includes('password')} />
-        <Provider type="facebook" active={providers.includes('facebook.com')} />
-        <Provider type="google" active={providers.includes('google.com')} />
-        <Provider type="phone" active={providers.includes('phone')} />
-      </View> */}
-      <FAB
-        color="#fff"
-        style={[styles.fab, {backgroundColor: theme.colors.primary}]}
-        icon="settings"
-        onPress={() => navigation.navigate('Settings')}
-      />
+      <View style={styles.spaceV10} />
+      {!!openDiagObat &&
+        <View style={styles.content}>
+          <View style={styles.contentRowIconRight}>
+            <Title>Diagnosa Obat</Title>
+            <IconButton icon="refresh" color={Colors.grey800} size={20}
+              onPress={() => setLoadingObat(true)} />
+            <IconButton icon="close" color={Colors.red500} size={20}
+              onPress={() => setOpenDiagObat(!openDiagObat)} />
+          </View>
+          <FlatList data={itemsObat} renderItem={({ item, index }) =>
+            <View style={styles.lists}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton icon={item.selectedObat ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
+                  onPress={() => onSelectObat(index)} />
+                {/* <IconButton icon="check-box" color={Colors.grey800} size={20}
+                  onPress={() => setOpenDiagObat(!openDiagObat)} /> */}
+                <View>
+                  <Title>{item.itemNamaObat}</Title>
+                  <Paragraph>{item.itemHargaJualObat}</Paragraph>
+                </View>
+              </View>
+            </View>
+          } />
+        </View>
+      }
+      <View style={styles.spaceV10} />
+      {!!openDiagTindakan &&
+        <View style={styles.content}>
+          <Title>Tindakan</Title>
+          <FlatList data={itemsObat} renderItem={({ item }) =>
+            <View style={styles.lists}>
+              <View>
+                <Title>{item.itemNamaObat}</Title>
+                <Paragraph>{item.itemHargaJualObat}</Paragraph>
+              </View>
+            </View>
 
-      {/* <View style={styles.center}>
-        <Facebook />
-        <Google />
-      </View> */}
+          } />
+        </View>
+      }
+      <Provider>
+        <Portal>
+          <FAB.Group
+            open={openFab}
+            icon={openFab ? 'settings' : 'add'}
+            // icon="settings"
+            actions={[
+              { icon: 'star', label: 'Tambah Diagnose Obat', onPress: () => setOpenDiagObat(!openDiagObat) },
+              { icon: 'email', label: 'Tambah Diagnosa Tindakan', onPress: () => setOpenDiagTindakan(!openDiagTindakan) },
+            ]}
+            onStateChange={({ open }) => setOpenFab(open)}
+            onPress={() => {
+              if (openFab) {
+                // do something if the speed dial is open
+              }
+            }}
+          />
+        </Portal>
+      </Provider>
     </View>
   );
 }
@@ -92,6 +184,14 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
+    backgroundColor: '#F6F7F8',
+    elevation: 4,
+    // marginBottom: 10,
+  },
+  contentRowIconRight: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   profile: {
     marginTop: -50,
@@ -120,6 +220,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
+  spaceV10: {
+    margin: 6,
+  }
 });
 
 export default withTheme(Profile);
