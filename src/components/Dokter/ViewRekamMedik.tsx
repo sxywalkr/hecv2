@@ -35,10 +35,14 @@ function Profile({ theme, navigation, route }: Props) {
   const user = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [loadingObat, setLoadingObat] = useState(true);
+  const [loadingDiagnosa, setLoadingDiagnosa] = useState(true);
   const [loadingSelectedObat, setLoadingSelectedObat] = useState(true);
+  const [loadingSelectedDiagnosa, setLoadingSelectedDiagnosa] = useState(true);
   const [items, setItems] = useState([]);
   const [itemsObat, setItemsObat] = useState([]);
+  const [itemsDiagnosa, setItemsDiagnosa] = useState([]);
   const [itemsFilteredObat, setItemsFilteredObat] = useState([]);
+  const [itemsFilteredDiagnosa, setItemsFilteredDiagnosa] = useState([]);
   const [itemsTindakan, setItemsTindakan] = useState([]);
   const [openFab, setOpenFab] = useState(false);
   const [openDiagObat, setOpenDiagObat] = useState(false);
@@ -49,9 +53,8 @@ function Profile({ theme, navigation, route }: Props) {
   if (!user) {
     return null;
   }
-
+  // ++++++++++++++++++ ambil data pasien 
   useEffect(() => {
-    // console.log(q)
     const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
     ref.on('value', onSnapshot);
     return () => { ref.off() }
@@ -69,6 +72,7 @@ function Profile({ theme, navigation, route }: Props) {
     setLoading(false);
   }
 
+  // ++++++++++++++++++ ambil data obat 
   useEffect(() => {
     const ref = database().ref(`obat`)
     ref.on('value', onSnapshotObat);
@@ -86,14 +90,31 @@ function Profile({ theme, navigation, route }: Props) {
       });
     });
     setItemsObat(list);
-    // setItemsFilteredObat(list);
     setLoadingObat(false);
   }
+  // ++++++++++++++++++ ambil data diagnosa
+  useEffect(() => {
+    const ref = database().ref(`diagnosa`)
+    ref.on('value', onSnapshotDiagnosa);
+    return () => { ref.off() }
+  }, [loadingDiagnosa]);
 
+  function onSnapshotDiagnosa(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdDiagnosa,
+        selectedDiagnosa: false,
+        ...item.val(),
+      });
+    });
+    setItemsDiagnosa(list);
+    setLoadingDiagnosa(false);
+  }
+  // ++++++++++++++++++ proses filter obat
   useEffect(() => {
     const filteredObat = itemsObat.filter((el) => el.selectedObat === true)
     setItemsFilteredObat(filteredObat)
-    // console.log(itemsFilteredObat);
     setLoadingSelectedObat(false)
   }, [loadingSelectedObat])
 
@@ -102,15 +123,30 @@ function Profile({ theme, navigation, route }: Props) {
     itemsObat[q].selectedJumlahObat = 1
     setLoadingSelectedObat(true)
   }
+  // ++++++++++++++++++ proses filter diagnosa
+  useEffect(() => {
+    const filteredDiagnosa = itemsDiagnosa.filter((el) => el.selectedDiagnosa === true)
+    setItemsFilteredDiagnosa(filteredDiagnosa)
+    setLoadingSelectedDiagnosa(false)
+  }, [loadingSelectedDiagnosa])
+
+  const onSelectDiagnosa = (q) => {
+    itemsDiagnosa[q].selectedDiagnosa = !itemsDiagnosa[q].selectedDiagnosa
+    setLoadingSelectedDiagnosa(true)
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Title>{q.userName}</Title>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Button mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true} >
+          Submit
+        </Button>
+        <View style={styles.spaceV10} />
+        {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <IconButton icon={itemsFilteredObat.length > 0 ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20} />
           <Paragraph>Diagnosa Obat</Paragraph>
-        </View>
+        </View> */}
       </View>
       <View style={styles.spaceV10} />
       {!!openDiagObat &&
@@ -127,8 +163,6 @@ function Profile({ theme, navigation, route }: Props) {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <IconButton icon={item.selectedObat ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
                   onPress={() => onSelectObat(index)} />
-                {/* <IconButton icon="check-box" color={Colors.grey800} size={20}
-                  onPress={() => setOpenDiagObat(!openDiagObat)} /> */}
                 <View>
                   <Title>{item.itemNamaObat}</Title>
                   <Paragraph>{item.itemHargaJualObat}</Paragraph>
@@ -141,15 +175,24 @@ function Profile({ theme, navigation, route }: Props) {
       <View style={styles.spaceV10} />
       {!!openDiagTindakan &&
         <View style={styles.content}>
-          <Title>Tindakan</Title>
-          <FlatList data={itemsObat} renderItem={({ item }) =>
+          <View style={styles.contentRowIconRight}>
+            <Title>Tindakan</Title>
+            <IconButton icon="refresh" color={Colors.grey800} size={20}
+              onPress={() => setLoadingDiagnosa(true)} />
+            <IconButton icon="close" color={Colors.red500} size={20}
+              onPress={() => setOpenDiagDiagnosa(!openDiagDiagnosa)} />
+          </View>
+          <FlatList data={itemsDiagnosa} renderItem={({ item, index }) =>
             <View style={styles.lists}>
-              <View>
-                <Title>{item.itemNamaObat}</Title>
-                <Paragraph>{item.itemHargaJualObat}</Paragraph>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton icon={item.selectedDiagnosa ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
+                  onPress={() => onSelectDiagnosa(index)} />
+                <View>
+                  <Title>{item.itemNamaDiagnosa}</Title>
+                  <Paragraph>{item.itemHargaJualDiagnosa}</Paragraph>
+                </View>
               </View>
             </View>
-
           } />
         </View>
       }
