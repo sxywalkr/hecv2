@@ -87,7 +87,16 @@ function AppMain({ theme, navigation }: Props) {
               <Paragraph>
                 Menampilkan list user yang booking.
               </Paragraph>
-              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingByDay', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") } )}>Lihat</Button>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingByDay', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
+            </View>
+          }
+          {userRole === 'Apotek' &&
+            <View style={styles.content}>
+              <Title>List Antri Apotek:</Title>
+              {/* <Paragraph>
+                Menampilkan list user aplikasi.
+              </Paragraph> */}
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ApotekListBooking')}>Lihat</Button>
             </View>
           }
         </View>

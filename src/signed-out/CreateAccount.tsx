@@ -42,7 +42,7 @@ function CreateAccount() {
             userNomorAntrian: 0,
             userAlamat: '',
             userHandphone: '',
-            userStatusPasien: '',
+            userStatusPasien: 'UMUM',
             userTanggalBooking: '',
           })
         })

@@ -68,6 +68,7 @@ function Profile({ theme, navigation, route }: Props) {
         ...item.val(),
       });
     });
+    // console.log(list)
     setItems(list);
     setLoading(false);
   }
@@ -132,14 +133,40 @@ function Profile({ theme, navigation, route }: Props) {
 
   const onSelectDiagnosa = (q) => {
     itemsDiagnosa[q].selectedDiagnosa = !itemsDiagnosa[q].selectedDiagnosa
+    // console.log(dayjs().month()+1)
     setLoadingSelectedDiagnosa(true)
+  }
+  // ++++++++++++++++++ proses filter diagnosa
+  const onSubmitRekamMedik = () => {
+    const a = database().ref('rekamMedikPasien').push();
+    database().ref('rekamMedikPasien/' + a.key).update({
+      rekamMedikId: a.key,
+      rekamMedikTanggal: dayjs().format(),
+      rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
+      rekamMedikBulan: dayjs().month()+1,
+      rekamMedikIdPasien: q.key,
+      rekamMedikNamaPasien: q.userName,
+      rekamMedikStatusPasien: q.userStatusPasien,
+      rekamMedikObat: JSON.stringify(itemsFilteredObat),
+      rekamMedikDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikIdDokter: user.uid,
+      rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
+      rekamMedikFlag: 'Poli OK, Apotek NOK, Billing NOK',
+    });
+    database().ref('users/' + q.key).update({
+      userFlagActivity: 'Antri Apotek',
+      userTanggalBooking: '',
+      userTanggalBooking2: '',
+    })
+    navigation.navigate('AppHome')
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Title>{q.userName}</Title>
-        <Button mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true} >
+        <Button mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true} 
+          onPress={() => onSubmitRekamMedik() } >
           Submit
         </Button>
         <View style={styles.spaceV10} />
