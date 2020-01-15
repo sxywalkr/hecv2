@@ -60,8 +60,8 @@ function Booking({ theme, navigation }: Props) {
 
   const handleDatePicked = date => {
     Alert.alert(
-      'Konfirmasi',
-      'Tanggal booking ' + dayjs(date).format('D MMMM YYYY') + ' sudah OK?',
+      'Konfirmasi Booking',
+      'Anda booking antrian pada tanggal ' + dayjs(date).format('D MMMM YYYY') + '. Proses Booking ?',
       [
         {
           text: 'Cancel',
@@ -125,8 +125,8 @@ function Booking({ theme, navigation }: Props) {
           </View>
           :
           <View>
-            <Paragraph>Nomor booking : {nomorAntrianPasien}</Paragraph>
-            <Paragraph>Tanggal booking Anda {dayjs(bookingDate).format('D MMMM YYYY')}.</Paragraph>
+            <Title>Nomor booking : {nomorAntrianPasien}</Title>
+            <Subheading>Tanggal booking Anda {dayjs(bookingDate).format('D MMMM YYYY')}.</Subheading>
           </View>
         }
         <Button

@@ -39,7 +39,7 @@ function ListBooking({ theme, navigation }: Props) {
 
   // useEffect(() => {
   //   // Create reference
-  //   const ref = database().ref(`users`).orderByChild('userFlagActivity').equalTo('Booking Antrian');
+  //   const ref = database().ref(`users`).orderByChild('userFlagActivity').equalTo('Antri Billing');
   //   ref.on('value', onSnapshot);
   //   return () => { ref.off() }
   // }, [items]);
@@ -57,15 +57,6 @@ function ListBooking({ theme, navigation }: Props) {
   //   setLoading(false);
   // }
 
-  // function onResetBooking(p) {
-  //   const ref = database().ref(`users/${p.userUid}`)
-  //   ref.update({
-  //     userFlagActivity: 'userIdle',
-  //     userTanggalBooking: '',
-  //     userTanggalBooking2: '',
-  //     userNomorAntrian: 0
-  //   })
-  // }
 
   function renderFields() {
     const noGuest = 7;
@@ -78,7 +69,7 @@ function ListBooking({ theme, navigation }: Props) {
           <View>
             <Title>{dayjs().add(i, 'day').format("YYYY-MM-DD")}</Title>
           </View>
-          <Button onPress={() => navigation.navigate('ResepsionisListBookingByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
+          <Button onPress={() => navigation.navigate('BillingListBookingByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
         </View>
       );
     }

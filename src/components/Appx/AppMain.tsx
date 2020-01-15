@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React, { useContext } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import {
   Avatar,
   Caption,
@@ -38,14 +38,15 @@ function AppMain({ theme, navigation }: Props) {
   // const providers = getProviders(user);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {userRole === 'ROLELESS' ? <ActivityIndicator animating={true} /> :
         <View style={styles.container}>
-          <Hero height={120} colors={['#15212B', '#15212B']} />
-          {/* <View style={styles.content}> */}
-          {/* <Headline>
-              {user.uid}
-            </Headline> */}
+          <Hero
+            height={180}
+            colors={['rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.1)']}
+            image={'https://firebasestorage.googleapis.com/v0/b/fbhecc.appspot.com/o/appAssets%2Flogo_s250.png?alt=media&token=8b40e34a-d39d-4c01-8037-e8e3d83a9e3f'}
+            
+          />
           <Divider />
           {userRole === 'System Admin' &&
             <View style={styles.content}>
@@ -79,7 +80,6 @@ function AppMain({ theme, navigation }: Props) {
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListDiagnosa')}>Lihat</Button>
             </View>
-            // <ResepsionisListBooking navigation={navigation}/>
           }
           {userRole === 'Dokter' &&
             <View style={styles.content}>
@@ -99,10 +99,30 @@ function AppMain({ theme, navigation }: Props) {
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ApotekListBooking')}>Lihat</Button>
             </View>
           }
+          {userRole === 'Billing' &&
+            <View style={styles.content}>
+              <Title>List Antri Billing:</Title>
+              {/* <Paragraph>
+                Menampilkan list user aplikasi.
+              </Paragraph> */}
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('BillingListBooking')}>Lihat</Button>
+            </View>
+          }
+          {userRole === 'Oka' &&
+            <View style={styles.content}>
+              <Title>List Antri Oka:</Title>
+              {/* <Paragraph>
+                Menampilkan list user aplikasi.
+              </Paragraph> */}
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('OkaListBookingByDay', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
+              {/* <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('OkaListBooking')}>Lihat</Button> */}
+            </View>
+          }
         </View>
-        // </View>
+        
       }
-    </View>
+      
+    </ScrollView>
   );
 }
 
@@ -146,7 +166,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 20,
   },
-
+  spaceV10: {
+    margin: 10,
+  },
 });
 
 export default withTheme(AppMain);

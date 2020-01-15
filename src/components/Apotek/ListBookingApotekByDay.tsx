@@ -66,6 +66,7 @@ function ListBooking({ theme, route, navigation }: Props) {
         .update({
             userFlagActivity: 'Antri Billing',
         })
+        navigation.navigate('AppHome')
     }
 
     if (loading) {
@@ -79,6 +80,10 @@ function ListBooking({ theme, route, navigation }: Props) {
                     <View style={styles.lists}>
                         <View>
                             <Title>{item.rekamMedikNamaPasien}</Title>
+                            <Caption>{item.rekamMedikFlag}</Caption>
+                            <View style={styles.spaceV10} />
+                            <Subheading>Obat</Subheading>
+                            <Caption>Total Harga Obat : {JSON.parse(item.rekamMedikObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
                             {JSON.parse(item.rekamMedikObat).map((el, key) =>
                                 <View key={key}>
                                     <Subheading>Nama Obat: {el.itemNamaObat}</Subheading>
@@ -88,7 +93,8 @@ function ListBooking({ theme, route, navigation }: Props) {
                             )}
 
                         </View>
-                        <Button onPress={() => onProsesApotek(item)}>Proses</Button>
+                        <Button disabled={item.rekamMedikFlag === 'Poli OK, Apotek NOK, Billing NOK' ? false : true}
+                            onPress={() => onProsesApotek(item)}>Proses</Button>
                     </View>
                 } />
                 : <Title>Tidak ada pasien</Title>}
@@ -144,6 +150,9 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
+    spaceV10: {
+        margin: 6,
+    }
 });
 
 export default withTheme(ListBooking);

@@ -89,8 +89,8 @@ function ListBooking({ theme, navigation }: Props) {
       <FlatList data={items} renderItem={({ item }) =>
         <View style={styles.lists}>
           <View>
-            <Title>{item.itemNamaObat}</Title>
-            <Paragraph>{item.itemHargaJualObat}</Paragraph>
+            <Subheading>{item.itemNamaObat}</Subheading>
+            <Caption>{item.itemHargaJualObat}</Caption>
           </View>
           <View style={{flexDirection:'row', alignItems:'center'}}>
             {/* <Button onPress={() => navigation.navigate({routeName: 'ResepsionisEditItem', params : { q: 'Edit', r: item }})}>Edit</Button> */}
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   lists: {
     backgroundColor: '#F6F7F8',
     elevation: 4,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     marginVertical: 4,
     paddingHorizontal: 5,

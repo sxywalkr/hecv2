@@ -40,7 +40,7 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q);
+        const ref = database().ref(`rekamMedikPasien`).orderByChild('rekamMedikTanggal2').equalTo(q);
         ref.on('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -49,7 +49,7 @@ function ListBooking({ theme, route, navigation }: Props) {
         const list = [];
         snapshot.forEach(item => {
             list.push({
-                key: item.val().userUid,
+                key: item.val().rekamMedikId,
                 ...item.val(),
             });
         });
@@ -57,14 +57,16 @@ function ListBooking({ theme, route, navigation }: Props) {
         setLoading(false);
     }
 
-    function onResetBooking(p) {
-        const ref = database().ref(`users/${p.userUid}`)
-        ref.update({
-            userFlagActivity: 'userIdle',
-            userTanggalBooking: '',
-            userTanggalBooking2: '',
-            userNomorAntrian: 0
-        })
+    function onProsesApotek(p) {
+        database().ref(`rekamMedikPasien/${p.rekamMedikId}`)
+            .update({
+                rekamMedikFlag: 'Poli OK, Apotek OK, Billing OK',
+            })
+        database().ref(`users/${p.rekamMedikIdPasien}`)
+            .update({
+                userFlagActivity: 'User Idle',
+            })
+        navigation.navigate('AppHome')
     }
 
     if (loading) {
@@ -77,13 +79,33 @@ function ListBooking({ theme, route, navigation }: Props) {
                 <FlatList data={items} renderItem={({ item }) =>
                     <View style={styles.lists}>
                         <View>
-                            <Title>{item.userName}</Title>
-                            <Paragraph>Nomor antrian : {item.userNomorAntrian}</Paragraph>
+                            <Title>{item.rekamMedikNamaPasien}</Title>
+                            <Caption>{item.rekamMedikFlag}</Caption>
+                            <View style={styles.spaceV10} />
+                            <Subheading>Obat</Subheading>
+                            <Caption>Total Harga Obat : {JSON.parse(item.rekamMedikObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
+                            {JSON.parse(item.rekamMedikObat).map((el, key) =>
+                                <View key={key}>
+                                    <Subheading>Nama Obat: {el.itemNamaObat}</Subheading>
+                                    <Caption>Jumlah Obat: {el.selectedJumlahObat}</Caption>
+                                    <Caption>Harga Obat: {el.itemHargaJualObat}</Caption>
+                                </View>
+                            )}
+                            <View style={styles.spaceV10} />
+                            <Subheading>Diagnosa</Subheading>
+                            <Caption>Total Harga Diagnosa : {JSON.parse(item.rekamMedikDiagnosa).map(el => el.itemHargaJualDiagnosa).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
+                            {JSON.parse(item.rekamMedikDiagnosa).map((el, key) =>
+                                <View key={key}>
+                                    <Subheading>Nama Diagnosa: {el.itemNamaDiagnosa}</Subheading>
+                                    <Caption>Harga Diagnosa: {el.itemHargaJualDiagnosa}</Caption>
+                                </View>
+                            )}
                         </View>
-                        <Button onPress={() => onResetBooking(item)}>Reset Booking</Button>
+                        <Button disabled={item.rekamMedikFlag === 'Poli OK, Apotek OK, Billing NOK' ? false : true}
+                            onPress={() => onProsesApotek(item)}>Proses</Button>
                     </View>
                 } />
-                : <Title>Tidak ada antrian booking</Title>}
+                : <Title>Tidak ada pasien</Title>}
         </View>
     );
 }
@@ -136,6 +158,9 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
+    spaceV10: {
+        margin: 6,
+    }
 });
 
 export default withTheme(ListBooking);

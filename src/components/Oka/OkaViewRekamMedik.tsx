@@ -32,6 +32,7 @@ interface Props {
 
 function Profile({ theme, navigation, route }: Props) {
   const { q } = route.params;
+  // console.log(q)
   const user = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [loadingObat, setLoadingObat] = useState(true);
@@ -55,7 +56,7 @@ function Profile({ theme, navigation, route }: Props) {
   }
   // ++++++++++++++++++ ambil data pasien 
   useEffect(() => {
-    const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
+    const ref = database().ref(`users`).orderByChild('userUid').equalTo(q.okaIdPasien);
     ref.on('value', onSnapshot);
     return () => { ref.off() }
   }, [items]);
@@ -136,68 +137,27 @@ function Profile({ theme, navigation, route }: Props) {
     // console.log(dayjs().month()+1)
     setLoadingSelectedDiagnosa(true)
   }
-  // ++++++++++++++++++ proses ke apotek
-  const onSubmitRekamMedik = () => {
-    const a = database().ref('rekamMedikPasien').push();
-    database().ref('rekamMedikPasien/' + a.key).update({
-      rekamMedikId: a.key,
-      rekamMedikTanggal: dayjs().format(),
-      rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
-      rekamMedikBulan: dayjs().month() + 1,
-      rekamMedikIdPasien: q.key,
-      rekamMedikNamaPasien: q.userName,
-      rekamMedikStatusPasien: q.userStatusPasien,
-      rekamMedikObat: JSON.stringify(itemsFilteredObat),
-      rekamMedikDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
-      rekamMedikIdDokter: user.uid,
-      rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
-      rekamMedikKeOka: false,
-      rekamMedikFlag: 'Poli OK, Apotek NOK, Billing NOK',
-    });
-    database().ref('users/' + q.key).update({
-      userFlagActivity: 'Antri Apotek',
-      userTanggalBooking: '',
-      userTanggalBooking2: '',
-    })
-    navigation.navigate('AppHome')
-  }
-
-  // ++++++++++++++++++ proses ke oka
-  const onSubmitRekamMedikKeOka = () => {
-    const a = database().ref('rekamMedikPasien').push();
-    database().ref('rekamMedikPasien/' + a.key).update({
-      rekamMedikId: a.key,
-      rekamMedikTanggal: dayjs().format(),
-      rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
-      rekamMedikBulan: dayjs().month() + 1,
-      rekamMedikIdPasien: q.key,
-      rekamMedikNamaPasien: q.userName,
-      rekamMedikStatusPasien: q.userStatusPasien,
-      rekamMedikObat: JSON.stringify(itemsFilteredObat),
-      rekamMedikDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
-      rekamMedikIdDokter: user.uid,
-      rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
-      rekamMedikKeOka: true,
-      rekamMedikFlag: 'Poli OK, Oka Nok, Apotek NOK, Billing NOK',
-    });
-    database().ref('okaRoom/' + a.key).update({
-      okaId: a.key,
-      okaTanggal: dayjs().format(),
-      okaTanggal2: dayjs().format("YYYY-MM-DD"),
-      okaBulan: dayjs().month() + 1,
-      okaIdPasien: q.key,
-      okaNamaPasien: q.userName,
-      okaStatusPasien: q.userStatusPasien,
+  // ++++++++++++++++++ proses filter diagnosa
+  const onSubmitOka = () => {
+    database().ref('okaRoom/' + q.okaId).update({
+      // okaId: a.key,
+      // okaTanggal: dayjs().format(),
+      // okaTanggal2: dayjs().format("YYYY-MM-DD"),
+      // okaBulan: dayjs().month()+1,
+      // okaIdPasien: q.key,
+      // okaNamaPasien: q.userName,
+      // okaStatusPasien: q.userStatusPasien,
       okaObat: JSON.stringify(itemsFilteredObat),
       okaDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
       okaIdDokter: user.uid,
       okaNamaDokter: user.displayName ? user.displayName : user.email,
-      okaFlag: 'Poli OK, Oka NOK, Apotek NOK, Billing NOK',
+      okaFlag: 'Poli OK, Oka OK, Apotek NOK, Billing NOK',
     });
+    database().ref('rekamMedikPasien/' + q.key).update({
+      rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
+    })
     database().ref('users/' + q.key).update({
-      userFlagActivity: 'Antri Oka',
-      userTanggalBooking: '',
-      userTanggalBooking2: '',
+      userFlagActivity: 'Antri Apotek',
     })
     navigation.navigate('AppHome')
   }
@@ -205,22 +165,12 @@ function Profile({ theme, navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Title>{q.userName}</Title>
-        <View style={{ flexDirection: 'row' }}>
-          <Button style={{ flex: 1 }} mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
-            onPress={() => onSubmitRekamMedik()} >
-            Ke Apotek
-          </Button>
-          <Button style={{ flex: 1 }} mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
-            onPress={() => onSubmitRekamMedikKeOka()} >
-            Ke Oka
+        <Title>{items.map((el) => el.userName)}</Title>
+        <Button mode='contained' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true} 
+          onPress={() => onSubmitOka() } >
+          Submit
         </Button>
-        </View>
         <View style={styles.spaceV10} />
-        {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <IconButton icon={itemsFilteredObat.length > 0 ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20} />
-          <Paragraph>Diagnosa Obat</Paragraph>
-        </View> */}
       </View>
       <View style={styles.spaceV10} />
       {!!openDiagObat &&
@@ -238,8 +188,8 @@ function Profile({ theme, navigation, route }: Props) {
                 <IconButton icon={item.selectedObat ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
                   onPress={() => onSelectObat(index)} />
                 <View>
-                  <Subheading>{item.itemNamaObat}</Subheading>
-                  <Caption>{item.itemHargaJualObat}</Caption>
+                  <Title>{item.itemNamaObat}</Title>
+                  <Paragraph>{item.itemHargaJualObat}</Paragraph>
                 </View>
               </View>
             </View>
@@ -254,7 +204,7 @@ function Profile({ theme, navigation, route }: Props) {
             <IconButton icon="refresh" color={Colors.grey800} size={20}
               onPress={() => setLoadingDiagnosa(true)} />
             <IconButton icon="close" color={Colors.red500} size={20}
-              onPress={() => setOpenDiagTindakan(!openDiagTindakan)} />
+              onPress={() => setOpenDiagDiagnosa(!openDiagDiagnosa)} />
           </View>
           <FlatList data={itemsDiagnosa} renderItem={({ item, index }) =>
             <View style={styles.lists}>
@@ -262,17 +212,14 @@ function Profile({ theme, navigation, route }: Props) {
                 <IconButton icon={item.selectedDiagnosa ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
                   onPress={() => onSelectDiagnosa(index)} />
                 <View>
-                  <Subheading>{item.itemNamaDiagnosa}</Subheading>
-                  <Caption>{item.itemHargaJualDiagnosa}</Caption>
+                  <Title>{item.itemNamaDiagnosa}</Title>
+                  <Paragraph>{item.itemHargaJualDiagnosa}</Paragraph>
                 </View>
               </View>
-              <View style={styles.spaceV10} />
             </View>
           } />
-          <View style={styles.spaceV10} />
         </View>
       }
-
       <Provider>
         <Portal>
           <FAB.Group
@@ -303,7 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    // paddingHorizontal: 20,
+    paddingHorizontal: 20,
     backgroundColor: '#F6F7F8',
     elevation: 4,
     // marginBottom: 10,
@@ -312,7 +259,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 20,
   },
   profile: {
     marginTop: -50,
@@ -343,15 +289,7 @@ const styles = StyleSheet.create({
   },
   spaceV10: {
     margin: 6,
-  },
-  lists: {
-    backgroundColor: '#F6F7F8',
-    // elevation: 4,
-    flexDirection: 'column',
-    // justifyContent: 'space-evenly',
-    // marginVertical: 4,
-    // paddingHorizontal: 3,
-  },
+  }
 });
 
 export default withTheme(Profile);

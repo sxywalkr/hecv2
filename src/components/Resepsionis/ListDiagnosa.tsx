@@ -83,8 +83,8 @@ function ListDiagnosa({ theme, navigation }: Props) {
       <FlatList data={items} renderItem={({ item }) =>
         <View style={styles.lists}>
           <View>
-            <Title>{item.itemNamaDiagnosa}</Title>
-            <Paragraph>{item.itemHargaJualDiagnosa}</Paragraph>
+            <Subheading>{item.itemNamaDiagnosa}</Subheading>
+            <Caption>Harga: {item.itemHargaJualDiagnosa}</Caption>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Button onPress={() => navigation.navigate('ResepsionisEditDiagnosa', { q: 'Edit', r: item })}>Edit</Button>
@@ -98,6 +98,7 @@ function ListDiagnosa({ theme, navigation }: Props) {
         icon="add"
         onPress={() => navigation.navigate('ResepsionisEditDiagnosa', { q: 'New', r: 'New' })}
       />
+      {/* <View style={styles.spaceV10} /> */}
     </View>
   );
 }
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   lists: {
     backgroundColor: '#F6F7F8',
     elevation: 4,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     marginVertical: 4,
     paddingHorizontal: 5,
@@ -149,6 +150,9 @@ const styles = StyleSheet.create({
   center: {
     width: '100%',
     alignItems: 'center',
+  },
+  spaceV10: {
+    margin: 30,
   },
 });
 

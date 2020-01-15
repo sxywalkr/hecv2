@@ -40,7 +40,7 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q);
+        const ref = database().ref(`okaRoom`).orderByChild('okaTanggal2').equalTo(q);
         ref.on('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -49,7 +49,7 @@ function ListBooking({ theme, route, navigation }: Props) {
         const list = [];
         snapshot.forEach(item => {
             list.push({
-                key: item.val().userUid,
+                key: item.val().okaId,
                 ...item.val(),
             });
         });
@@ -57,14 +57,16 @@ function ListBooking({ theme, route, navigation }: Props) {
         setLoading(false);
     }
 
-    function onResetBooking(p) {
-        const ref = database().ref(`users/${p.userUid}`)
-        ref.update({
-            userFlagActivity: 'userIdle',
-            userTanggalBooking: '',
-            userTanggalBooking2: '',
-            userNomorAntrian: 0
-        })
+    function onProsesApotek(p) {
+        database().ref(`okRoom/${p.rekamMedikId}`)
+            .update({
+                rekamMedikFlag: 'Oka OK, Apotek NOK, Billing NOK',
+            })
+        database().ref(`users/${p.rekamMedikIdPasien}`)
+            .update({
+                userFlagActivity: 'Antri Apotek',
+            })
+        navigation.navigate('AppHome')
     }
 
     if (loading) {
@@ -77,13 +79,26 @@ function ListBooking({ theme, route, navigation }: Props) {
                 <FlatList data={items} renderItem={({ item }) =>
                     <View style={styles.lists}>
                         <View>
-                            <Title>{item.userName}</Title>
-                            <Paragraph>Nomor antrian : {item.userNomorAntrian}</Paragraph>
+                            <Title>{item.okaNamaPasien}</Title>
+                            <Caption>{item.okaFlag}</Caption>
+                            <View style={styles.spaceV10} />
+                            {/* <Subheading>Obat</Subheading> */}
+                            {/* <Caption>Total Harga Obat : {JSON.parse(item.okaObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption> */}
+                            {/* {JSON.parse(item.okaObat).map((el, key) =>
+                                <View key={key}>
+                                    <Subheading>Nama Obat: {el.itemNamaObat}</Subheading>
+                                    <Caption>Jumlah Obat: {el.selectedJumlahObat}</Caption>
+                                    <Caption>Harga Obat: {el.itemHargaJualObat}</Caption>
+                                </View>
+                            )} */}
+
                         </View>
-                        <Button onPress={() => onResetBooking(item)}>Reset Booking</Button>
+                        <Button 
+                            // disabled={item.okaFlag=='Poli OK, Oka OK, Apotek NOK, Billing NOK' ? true : false}
+                            onPress={() => navigation.navigate('OkaViewRekamMedik', { q: item })}>Proses</Button>
                     </View>
                 } />
-                : <Title>Tidak ada antrian booking</Title>}
+                : <Title>Tidak ada pasien</Title>}
         </View>
     );
 }
@@ -136,6 +151,9 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
+    spaceV10: {
+        margin: 6,
+    }
 });
 
 export default withTheme(ListBooking);

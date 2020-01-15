@@ -16,6 +16,11 @@ import DokterListBookingByDay from '../components/Dokter/ListBookingByDay';
 import DokterViewRekamMedik from '../components/Dokter/ViewRekamMedik';
 import ApotekListBooking from '../components/Apotek/ListBookingApotek'
 import ApotekListBookingByDay from '../components/Apotek/ListBookingApotekByDay'
+import BillingListBooking from '../components/Billing/ListBookingBilling'
+import BillingListBookingByDay from '../components/Billing/ListBookingBillingByDay'
+import OkaListBooking from '../components/Oka/ListBookingOka'
+import OkaListBookingByDay from '../components/Oka/ListBookingOkaByDay'
+import OkaViewRekamMedik from '../components/Oka/OkaViewRekamMedik'
 
 interface Props {
   theme: Theme;
@@ -46,6 +51,11 @@ function SignedInStack({theme}: Props) {
         <Stack.Screen name="DokterViewRekamMedik" component={DokterViewRekamMedik} options={{title: 'View Rekam Medik'}} />
         <Stack.Screen name="ApotekListBooking" component={ApotekListBooking} options={{title: 'List Antri Apotek'}} />
         <Stack.Screen name="ApotekListBookingByDay" component={ApotekListBookingByDay} options={{title: 'List Antri Apotek By Day'}} />
+        <Stack.Screen name="BillingListBooking" component={BillingListBooking} options={{title: 'List Antri Billing'}} />
+        <Stack.Screen name="BillingListBookingByDay" component={BillingListBookingByDay} options={{title: 'List Antri Billing By Day'}} />
+        <Stack.Screen name="OkaListBooking" component={OkaListBooking} options={{title: 'List Antri Oka'}} />
+        <Stack.Screen name="OkaListBookingByDay" component={OkaListBookingByDay} options={{title: 'List Antri Oka By Day'}} />
+        <Stack.Screen name="OkaViewRekamMedik" component={OkaViewRekamMedik} options={{title: 'View Rekam Medik'}} />
         <Stack.Screen
           name="Profile"
           component={Profile}
