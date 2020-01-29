@@ -21,14 +21,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
-	<array>
-		<!-- [ios] FacebookURLScheme -->
-		<!-- [ios] GoogleURLScheme -->
-	</array>
+	<array/>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<!-- [ios] FacebookAppID -->
-	<!-- [ios] FacebookDisplayName -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -52,7 +47,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

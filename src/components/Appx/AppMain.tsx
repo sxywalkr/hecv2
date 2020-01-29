@@ -79,6 +79,11 @@ function AppMain({ theme, navigation }: Props) {
                 List daftar Diagnosa.
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListDiagnosa')}>Lihat</Button>
+              <Title>List Pasien BPJS</Title>
+              <Paragraph>
+                List Pasien BPJS
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListItemBpjs')}>Lihat</Button>
             </View>
           }
           {userRole === 'Dokter' &&
