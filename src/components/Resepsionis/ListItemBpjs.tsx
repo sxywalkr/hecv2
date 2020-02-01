@@ -14,13 +14,16 @@ import {
   Button,
   ActivityIndicator,
   Paragraph,
+  TextInput,
 } from 'react-native-paper';
 import database from '@react-native-firebase/database';
 import { NavigationParams } from 'react-navigation';
 import { UserContext } from '../../App';
-import { Hmac, Pbkdf2 } from "@trackforce/react-native-crypto";
-import utc from 'dayjs/plugin/utc' // load on demand
-dayjs.extend(utc) // use plugin
+// import { Hmac, Pbkdf2 } from "@trackforce/react-native-crypto";
+// import utc from 'dayjs/plugin/utc' // load on demand
+// dayjs.extend(utc) // use plugin
+import axios from 'axios';
+import DateTimePicker from "react-native-modal-datetime-picker";
 
 
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -35,85 +38,105 @@ interface Props {
 function ListBookingBpjs({ theme, navigation }: Props) {
   const user = useContext(UserContext);
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([]);
-  const [header1, setHeader1] = useState('');
-  const [header2, setHeader2] = useState('');
-  const [header3, setHeader3] = useState('');
-  // const [userRole, setUserRole] = useState('')
+  const [param1, setParam1] = useState();
+  const [param2, setParam2] = useState();
+  const [itemNomorBpjs, setItemNomorBpjs] = useState();
+  const [header, setHeader] = useState('');
+  const [result, setResult] = useState();
+  const [pasienNama, setPasienNama] = useState()
+  const [pasienNoBpjs, setPasienNoBpjs] = useState();
+  const [pasienSex, setPasienSex] = useState()
+  const [pasienTanggalLahir, setPasienTanggalLahir] = useState()
+  const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
+  const [bookingDate, setBookingDate] = useState();
 
   if (!user) {
     return null;
   }
 
-  async function initHeader() {
-    const iterations = 4096;
-    const keyInBytes = 32;
-    const message = '8004';
-    const tstamp = dayjs().utc().unix() - dayjs('1970-01-01 00:00:00').utc().unix();
-    const key = await Pbkdf2.hash('1iH08C361F', message + '&' + tstamp, iterations, keyInBytes, 'SHA256');
-    const hmac256Hash = await Hmac.hmac256(message + '&' + tstamp, key);
-    console.log(message + '&' + tstamp)
-    setHeader1(hmac256Hash);
-    setHeader2(dayjs().utc().unix() - dayjs('1970-01-01 00:00:00').utc().unix());
-    setHeader3(dayjs().utc().unix());
+  // async function initHeader() {
+  //   // const iterations = 4096;
+  //   // const keyInBytes = 32;
+  //   // const message = '8004';
+  //   // const tstamp = dayjs().utc().unix() - dayjs('1970-01-01 00:00:00').utc().unix();
+  //   // const key = await Pbkdf2.hash('1iH08C361F', message + '&' + tstamp, iterations, keyInBytes, 'SHA256');
+  //   // const hmac256Hash = await Hmac.hmac256(message + '&' + tstamp, key);
+  //   // console.log(message + '&' + tstamp)
+  //   // setHeader1(hmac256Hash);
+  //   // setHeader2(dayjs().utc().unix() - dayjs('1970-01-01 00:00:00').utc().unix());
+  //   // setHeader3(dayjs().utc().unix());
+  //   // console.log()
 
-  }
+
+  //   axios.get('https://daengdeals.com/hec.php')
+  //     .then(function (response) {
+  //       // handle success
+  //       setHeader(response.data.split(' '));
+  //     })
+  //     .catch(function (error) {
+  //       // handle error
+  //       // console.log(error);
+  //     })
+  //     .then(function () {
+  //       // always executed
+  //     });
+  // }
 
   useEffect(() => {
-    initHeader()
-
+    // setParam1('0000125575514')
+    setParam2(dayjs().format('YYYY-MM-DD'))
+    // setParam2()
+    console.log(header[0])
+    console.log(header[1])
+    axios.get('https://daengdeals.com/hec.php')
+      .then(function (response) {
+        setHeader(response.data.split(' '));
+      })
+      .catch(function (error) {
+        // console.log(error);
+      });
     setLoading(false)
+
   }, [loading]);
 
+  async function handleSubmitItem() {
+    setResult()
+    console.log(header[0])
+    console.log(header[1])
+    axios.get('https://dvlp.bpjs-kesehatan.go.id/VClaim-rest/Peserta/nokartu/' + itemNomorBpjs + '/tglSEP/' + param2, {
+      headers: {
+        'X-cons-id': 8004,
+        'X-timestamp': header[0],
+        'X-signature': header[1],
+        'Content-Type': 'application/json; charset=utf-8',
+      },
 
-// X-cons-id: 8004 
-// X-timestamp: 1580274110 
-// 8146bb043240185bad176a4630b0d4f745d895c861324e1dac5bb1686c174c69
-// X-signature: ODE0NmJiMDQzMjQwMTg1YmFkMTc2YTQ2MzBiMGQ0Zjc0NWQ4OTVjODYxMzI0ZTFkYWM1YmIxNjg2YzE3NGM2OQ== 
-// Content-Type: application/json; charset=utf-8 
+    })
+      .then(function (response) {
+        console.log(response.data.response.peserta);
+        // console.log(response.data.response.list);
+        setResult(response.data);
+        setPasienNama(response.data.response.peserta.nama)
+        setPasienNoBpjs(response.data.response.peserta.noKartu)
+        setPasienSex(response.data.response.peserta.sex)
+        setPasienTanggalLahir(response.data.response.peserta.tglLahir)
+      })
+      .catch(function (error) {
+        // console.log(error);
+      });
+  };
 
-  // useEffect(() => {
-  //   // Create reference
-  //   const ref = database().ref(`obat`)
-  //   // .orderByChild('userFlagActivity').equalTo('Booking Antrian');
-  //   ref.on('value', onSnapshot);
-  //   return () => { ref.off() }
-  // }, [items]);
+  const showDateTimePicker = () => {
+    setIsDateTimePickerVisible(true)
+  };
 
-  // function onSnapshot(snapshot) {
-  //   const list = [];
-  //   snapshot.forEach(item => {
-  //     // console.log(item.val().userTanggalBooking2)
-  //     list.push({
-  //       key: item.val().itemIdObat,
-  //       ...item.val(),
-  //     });
-  //   });
-  //   setItems(list);
-  //   setLoading(false);
-  // }
+  const hideDateTimePicker = () => {
+    setIsDateTimePickerVisible(false)
+  };
 
-  // function onDeleteItem(p) {
-  //   Alert.alert(
-  //     'Konfirmasi',
-  //     'Yakin ingin menghapus obat ' + p.itemNamaObat + ' ?',
-  //     [
-  //       {
-  //         text: 'Cancel',
-  //         // onPress: () => hideDateTimePicker(),
-  //         style: 'cancel',
-  //       },
-  //       {
-  //         text: 'OK', onPress: () => {
-  //           const ref = database().ref(`obat/${p.itemIdObat}`)
-  //           ref.remove();
-  //         }
-  //       }
-  //     ],
-  //     { cancelable: false },
-  //   )
-  // }
-
+  const handleDatePicked = datex => {
+    const a = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs)
+  }
 
   if (loading) {
     return <ActivityIndicator style={styles.container} animating={true} />;
@@ -121,31 +144,40 @@ function ListBookingBpjs({ theme, navigation }: Props) {
 
   return (
     <View style={styles.container} >
-      <Caption>{header1}</Caption>
-      <Caption>{header2}</Caption>
-      <Caption>{header3}</Caption>
-      {console.log('X-cons-id: ' + '8004')}
-      {console.log('X-timestamp: ' + header2)}
-      {console.log('X-signature: ' + header1)}
-
-      {/* <FlatList data={items} renderItem={({ item }) =>
-        <View style={styles.lists}>
-          <View>
-            <Subheading>{item.itemNamaObat}</Subheading>
-            <Caption>{item.itemHargaJualObat}</Caption>
-          </View>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <Button onPress={() => navigation.navigate('ResepsionisEditItem', {q: 'Edit', r: item })}>Edit</Button>
-            <Button onPress={() => onDeleteItem(item)}>Hapus</Button>
-          </View>
-        </View>
-      } /> */}
-      {/* <FAB
-        color="#fff"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        icon="add"
-        onPress={() => navigation.navigate('ResepsionisEditItem', { q: 'New', r: 'New' })}
-      /> */}
+      <View style={styles.content}>
+        <TextInput
+          style={styles.input}
+          mode="outlined"
+          keyboardType='number-pad'
+          label="Nomor BPJS Peserta"
+          value={itemNomorBpjs}
+          onChangeText={setItemNomorBpjs}
+        />
+        <Button
+          disabled={!itemNomorBpjs}
+          mode="outlined"
+          loading={loading}
+          onPress={handleSubmitItem}
+          style={styles.button}>
+          Cari Data
+        </Button>
+        <Title>{!!result && result.response.peserta.nama ? result.response.peserta.nama : 'No Data'}</Title>
+        <Caption>{!!result && pasienNama}</Caption>
+        <Caption>{!!result && pasienNoBpjs}</Caption>
+        <Caption>{!!result && pasienSex}</Caption>
+        <Caption>{!!result && pasienTanggalLahir}</Caption>
+        <Button
+          mode='outlined' style={styles.button} disabled={!!bookingDate}
+          onPress={showDateTimePicker}>
+          Pilih Tanggal
+        </Button>
+        <DateTimePicker
+          isVisible={isDateTimePickerVisible}
+          onConfirm={handleDatePicked}
+          onCancel={hideDateTimePicker}
+        />
+        <Caption>{!!result && pasienSex}</Caption>
+      </View>
     </View>
   );
 }
@@ -157,7 +189,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    marginHorizontal: -20,
+    // marginHorizontal: -20,
+    padding: 16,
   },
   profile: {
     marginTop: -50,
@@ -197,6 +230,9 @@ const styles = StyleSheet.create({
   center: {
     width: '100%',
     alignItems: 'center',
+  },
+  input: {
+    marginTop: 20,
   },
 });
 
