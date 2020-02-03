@@ -24,12 +24,13 @@ import { getProviders } from '../../util/helpers';
 
 interface Props {
     theme: Theme;
-    navigation: NavigationParams;
-    route: NavigationRoute;
+    // navigation: NavigationParams;
+    // route: NavigationRoute;
+    datex: string;
 }
 
-function ListBooking({ theme, route, navigation }: Props) {
-    const { q } = route.params;
+function ListBooking({ theme, datex }: Props) {
+    // const { q } = route.params;
     const user = useContext(UserContext);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
@@ -40,18 +41,19 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q);
-        ref.on('value', onSnapshot);
+        const ref = database().ref(`hecAntrian/indexes/${datex}/detail`);
+        ref.once('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
 
     function onSnapshot(snapshot) {
         const list = [];
         snapshot.forEach(item => {
-            list.push({
-                key: item.val().userUid,
-                ...item.val(),
-            });
+            if (item.val()) {
+                list.push({
+                    key: item.val(),
+                });
+            }
         });
         setItems(list);
         setLoading(false);
@@ -64,16 +66,8 @@ function ListBooking({ theme, route, navigation }: Props) {
     return (
         <View style={styles.container} >
             {items.length > 0 ?
-                <FlatList data={items} renderItem={({ item }) =>
-                    <View style={styles.lists}>
-                        <View>
-                            <Title>{item.userName}</Title>
-                            <Paragraph>Nomor antrian : {item.userNomorAntrian}</Paragraph>
-                        </View>
-                        <Button onPress={() => navigation.navigate('DokterViewRekamMedik', { q: item })}>Proses</Button>
-                    </View>
-                } />
-                : <Title>Tidak ada pasien</Title>}
+                <Subheading>Jumlah antrian: {items.length}</Subheading>
+                : <Subheading>Tidak ada antrian</Subheading>}
         </View>
     );
 }

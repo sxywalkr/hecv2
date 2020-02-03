@@ -115,7 +115,6 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         'X-signature': header[1],
         'Content-Type': 'application/json; charset=utf-8',
       },
-
     })
       .then(function (response) {
         console.log(response.data.response.peserta);
@@ -126,24 +125,24 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         setPasienSex(response.data.response.peserta.sex)
         setPasienTanggalLahir(response.data.response.peserta.tglLahir)
       })
-      .catch(function (error) {
-        // console.log(error);
-      });
+      // .catch(function (error) {
+      //   // console.log(error);
+      // });
   };
 
-  const showDateTimePicker = () => {
-    setIsDateTimePickerVisible(true)
-  };
+  // const showDateTimePicker = () => {
+  //   setIsDateTimePickerVisible(true)
+  // };
 
-  const hideDateTimePicker = () => {
-    setIsDateTimePickerVisible(false)
-  };
+  // const hideDateTimePicker = () => {
+  //   setIsDateTimePickerVisible(false)
+  // };
 
-  const handleDatePicked = datex => {
-    setBookingDate(dayjs(datex).format("YYYY-MM-DD"))
-    // const a = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs)
-    // console.log(a)
-  }
+  // const handleDatePicked = datex => {
+  //   setBookingDate(dayjs(datex).format("YYYY-MM-DD"))
+  //   // const a = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs)
+  //   // console.log(a)
+  // }
 
   const handleBookingOffline = () => {
     setLoading2(true)

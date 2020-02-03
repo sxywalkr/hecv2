@@ -21,6 +21,7 @@ import { NavigationParams } from 'react-navigation';
 import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
+import ListBookingCountByDay from '../Resepsionis/ListBookingCountByDay';
 
 interface Props {
   theme: Theme;
@@ -75,8 +76,9 @@ function ListBooking({ theme, navigation }: Props) {
       fields.push(
         // <Field key={"guest_"+i} data={i} />
         <View style={styles.lists} key={i}>
-          <View>
+          <View style={{marginBottom: 0}}>
             <Title>{dayjs().add(i, 'day').format("YYYY-MM-DD")}</Title>
+            <ListBookingCountByDay datex={dayjs().add(i, 'day').format("YYYY-MM-DD")} />
           </View>
           <Button onPress={() => navigation.navigate('ResepsionisListBookingByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
         </View>
@@ -90,7 +92,7 @@ function ListBooking({ theme, navigation }: Props) {
   }
 
   return (
-    <View style={styles.container} >
+    <ScrollView style={styles.container} >
       {renderFields()}
 
       {/* <FlatList data={items} renderItem={({ item }) =>
@@ -102,7 +104,7 @@ function ListBooking({ theme, navigation }: Props) {
           <Button onPress={()=>onResetBooking(item)}>Reset Booking</Button>
         </View>
       } /> */}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -131,6 +133,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-evenly',
     marginVertical: 4,
     paddingHorizontal: 3,
+    // marginBottom: 20
   },
   providers: {
     backgroundColor: '#F6F7F8',
