@@ -17,6 +17,7 @@ import {
   TextInput,
 } from 'react-native-paper';
 import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 import { NavigationParams } from 'react-navigation';
 import { UserContext } from '../../App';
 // import { Hmac, Pbkdf2 } from "@trackforce/react-native-crypto";
@@ -38,6 +39,7 @@ interface Props {
 function ListBookingBpjs({ theme, navigation }: Props) {
   const user = useContext(UserContext);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(false);
   const [param1, setParam1] = useState();
   const [param2, setParam2] = useState();
   const [itemNomorBpjs, setItemNomorBpjs] = useState();
@@ -47,8 +49,10 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   const [pasienNoBpjs, setPasienNoBpjs] = useState();
   const [pasienSex, setPasienSex] = useState()
   const [pasienTanggalLahir, setPasienTanggalLahir] = useState()
+  const [pasienNomorAntrian, setPasienNomorAntrian] = useState()
   const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
   const [bookingDate, setBookingDate] = useState();
+
 
   if (!user) {
     return null;
@@ -142,45 +146,76 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   }
 
   const handleBookingOffline = () => {
-    const tanggalYMD = dayjs().format("YYYY-MM-DD");
+    setLoading2(true)
     // cari pasien dulu
     const cekPasien = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs).once('value');
     cekPasien.then((res) => {
       if (res.exists()) {
-        // cek latestOfflineQueue dari hecAntrian
-        const ref1 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value');
-        ref1.then((res1) => {
-          cekNomorAntrian(res, res1, tanggalYMD);
-        })
+        // existing user
+        const objUserUid = Object.keys(res.val()).map((key) => res.val()[key].userUid)
+        cekNomorAntrian(objUserUid[0]);
       } else {
-        // register user
+        // register new user
+        auth().createUserWithEmailAndPassword(pasienNoBpjs + '@hec.com', 'password')
+          .then((authUser) => {
+            const ref = database().ref(`users/${authUser.user.uid}`);
+            ref.update({
+              userUid: authUser.user.uid,
+              userName: pasienNama,
+              userNoBpjs: pasienNoBpjs,
+              userRole: 'Pasien',
+              userAlamat: '',
+              userHandphone: '',
+              userStatusPasien: 'BPJS',
+              userTanggalBooking: '',
+            })
+            const objUserUid = authUser.user.uid
+            cekNomorAntrian(objUserUid);
+          })
       }
-      // console.log(res.val())
-      // console.log(Object.keys(res.val()))
-      // console.log(Object.keys(res.val()).map((key) => key))
-      // console.log(Object.keys(res.val()).map((key) => res.val()[key].userUid))
     })
   }
 
-  const cekNomorAntrian = (result, result1, tanggalYMD) => {
-    if (result1.exists()) {
-      // antrian offline next
-      const objUserUid = Object.keys(result.val()).map((key) => result.val()[key].userUid)
-      let latestOfflineQueue = result1.val().latestOfflineQueue + 1
-      const ruleOnline = [4, 5, 9, 10]
-      // rule nomor antrian disini
-      console.log('before' ,typeof latestOfflineQueue, latestOfflineQueue in ruleOnline)
-      console.log(1 in [1, 2])
-      if (latestOfflineQueue in ruleOnline) {
-        latestOfflineQueue = latestOfflineQueue + 2
-        console.log('after' ,latestOfflineQueue)
-      }
+  const cekNomorAntrian = (result) => {
+    const tanggalYMD = dayjs().format("YYYY-MM-DD");
+    const objUserUid = result
+
+    const ref1 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value');
+    ref1.then((result1) => {
+      if (result1.exists()) {
+        // antrian offline next        
+        let latestOfflineQueue = result1.val().latestOfflineQueue + 1
+        // start - rule nomor antrian disini
+        const ruleOnline = [4, 5, 9, 10, 14, 15, 19, 20]
+        if (ruleOnline.includes(latestOfflineQueue)) {
+          latestOfflineQueue = latestOfflineQueue + 2
+          // console.log('after' ,latestOfflineQueue)
+        }
+        // end - rule nomor antrian disini
         database().ref(`hecAntrian/indexes/${tanggalYMD}`).update({
           latestOfflineQueue: latestOfflineQueue,
         })
         database().ref(`hecAntrian/indexes/${tanggalYMD}/detail/${latestOfflineQueue}`).update({
           antrianNomor: latestOfflineQueue,
-          antrianUserUid: objUserUid[0],
+          antrianUserUid: objUserUid,
+          antrianUserNama: pasienNama,
+          antrianUserNoBpjs: pasienNoBpjs,
+          antrianTanggalBooking2: tanggalYMD,
+        })
+        database().ref(`users/${objUserUid}`).update({
+          userTanggalBooking2: tanggalYMD,
+          userNomorAntrian: latestOfflineQueue,
+          userFlagActivity: 'Booking Antrian',
+        });
+        setPasienNomorAntrian(latestOfflineQueue)
+      } else {
+        // antrian offline no 1
+        database().ref(`hecAntrian/indexes/${tanggalYMD}`).update({
+          latestOfflineQueue: 1
+        })
+        database().ref(`hecAntrian/indexes/${tanggalYMD}/detail/1`).update({
+          antrianNomor: 1,
+          antrianUserUid: objUserUid,
           antrianUserNama: pasienNama,
           antrianUserNoBpjs: pasienNoBpjs,
           antrianTanggalBooking2: tanggalYMD,
@@ -190,26 +225,10 @@ function ListBookingBpjs({ theme, navigation }: Props) {
           userNomorAntrian: 1,
           userFlagActivity: 'Booking Antrian',
         });
-      
-    } else {
-      // antrian offline no 1
-      const objUserUid = Object.keys(result.val()).map((key) => result.val()[key].userUid)
-      database().ref(`hecAntrian/indexes/${tanggalYMD}`).update({
-        latestOfflineQueue: 1
-      })
-      database().ref(`hecAntrian/indexes/${tanggalYMD}/detail/1`).update({
-        antrianNomor: 1,
-        antrianUserUid: objUserUid[0],
-        antrianUserNama: pasienNama,
-        antrianUserNoBpjs: pasienNoBpjs,
-        antrianTanggalBooking2: tanggalYMD,
-      })
-      database().ref(`users/${objUserUid}`).update({
-        userTanggalBooking2: tanggalYMD,
-        userNomorAntrian: 1,
-        userFlagActivity: 'Booking Antrian',
-      });
-    }
+        setPasienNomorAntrian(1)
+      }
+    })
+    setLoading2(false)
   }
 
   if (loading) {
@@ -236,7 +255,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
           Cari Data
         </Button>
         <Title>{!!result && result.response.peserta.nama ? result.response.peserta.nama : 'No Data'}</Title>
-        <Caption>{!!result && pasienNama}</Caption>
+        {/* <Caption>{!!result && pasienNama}</Caption> */}
         <Caption>{!!result && pasienNoBpjs}</Caption>
         <Caption>{!!result && pasienSex}</Caption>
         <Caption>{!!result && pasienTanggalLahir}</Caption>
@@ -247,6 +266,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         </Button> */}
         <Button
           mode='outlined' style={styles.button} disabled={!itemNomorBpjs}
+          loading = {loading2}
           onPress={handleBookingOffline}>
           Proses Booking Offline
         </Button>
@@ -255,7 +275,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
           onConfirm={handleDatePicked}
           onCancel={hideDateTimePicker}
         /> */}
-        <Caption>{!!result && pasienSex}</Caption>
+        <Caption>{(!!pasienNomorAntrian ) && 'Nomor Antrian Pasien : ' + pasienNomorAntrian}</Caption>
       </View>
     </View>
   );
