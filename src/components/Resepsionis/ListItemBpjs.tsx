@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, FlatList, ScrollView, Alert, Keyboard } from 'react-native';
 import {
   Avatar,
   Caption,
@@ -101,6 +101,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
 
   async function handleSubmitItem() {
     setResult()
+    Keyboard.dismiss();
     console.log(header[0])
     console.log(header[1])
     axios.get('https://dvlp.bpjs-kesehatan.go.id/VClaim-rest/Peserta/nokartu/' + itemNomorBpjs + '/tglSEP/' + param2, {
@@ -135,7 +136,80 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   };
 
   const handleDatePicked = datex => {
-    const a = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs)
+    setBookingDate(dayjs(datex).format("YYYY-MM-DD"))
+    // const a = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs)
+    // console.log(a)
+  }
+
+  const handleBookingOffline = () => {
+    const tanggalYMD = dayjs().format("YYYY-MM-DD");
+    // cari pasien dulu
+    const cekPasien = database().ref('users').orderByChild('userNoBpjs').equalTo(pasienNoBpjs).once('value');
+    cekPasien.then((res) => {
+      if (res.exists()) {
+        // cek latestOfflineQueue dari hecAntrian
+        const ref1 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value');
+        ref1.then((res1) => {
+          cekNomorAntrian(res, res1, tanggalYMD);
+        })
+      } else {
+        // register user
+      }
+      // console.log(res.val())
+      // console.log(Object.keys(res.val()))
+      // console.log(Object.keys(res.val()).map((key) => key))
+      // console.log(Object.keys(res.val()).map((key) => res.val()[key].userUid))
+    })
+  }
+
+  const cekNomorAntrian = (result, result1, tanggalYMD) => {
+    if (result1.exists()) {
+      // antrian offline next
+      const objUserUid = Object.keys(result.val()).map((key) => result.val()[key].userUid)
+      let latestOfflineQueue = result1.val().latestOfflineQueue + 1
+      const ruleOnline = [4, 5, 9, 10]
+      // rule nomor antrian disini
+      console.log('before' ,typeof latestOfflineQueue, latestOfflineQueue in ruleOnline)
+      console.log(1 in [1, 2])
+      if (latestOfflineQueue in ruleOnline) {
+        latestOfflineQueue = latestOfflineQueue + 2
+        console.log('after' ,latestOfflineQueue)
+      }
+        database().ref(`hecAntrian/indexes/${tanggalYMD}`).update({
+          latestOfflineQueue: latestOfflineQueue,
+        })
+        database().ref(`hecAntrian/indexes/${tanggalYMD}/detail/${latestOfflineQueue}`).update({
+          antrianNomor: latestOfflineQueue,
+          antrianUserUid: objUserUid[0],
+          antrianUserNama: pasienNama,
+          antrianUserNoBpjs: pasienNoBpjs,
+          antrianTanggalBooking2: tanggalYMD,
+        })
+        database().ref(`users/${objUserUid}`).update({
+          userTanggalBooking2: tanggalYMD,
+          userNomorAntrian: 1,
+          userFlagActivity: 'Booking Antrian',
+        });
+      
+    } else {
+      // antrian offline no 1
+      const objUserUid = Object.keys(result.val()).map((key) => result.val()[key].userUid)
+      database().ref(`hecAntrian/indexes/${tanggalYMD}`).update({
+        latestOfflineQueue: 1
+      })
+      database().ref(`hecAntrian/indexes/${tanggalYMD}/detail/1`).update({
+        antrianNomor: 1,
+        antrianUserUid: objUserUid[0],
+        antrianUserNama: pasienNama,
+        antrianUserNoBpjs: pasienNoBpjs,
+        antrianTanggalBooking2: tanggalYMD,
+      })
+      database().ref(`users/${objUserUid}`).update({
+        userTanggalBooking2: tanggalYMD,
+        userNomorAntrian: 1,
+        userFlagActivity: 'Booking Antrian',
+      });
+    }
   }
 
   if (loading) {
@@ -166,16 +240,21 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         <Caption>{!!result && pasienNoBpjs}</Caption>
         <Caption>{!!result && pasienSex}</Caption>
         <Caption>{!!result && pasienTanggalLahir}</Caption>
-        <Button
+        {/* <Button
           mode='outlined' style={styles.button} disabled={!!bookingDate}
           onPress={showDateTimePicker}>
           Pilih Tanggal
+        </Button> */}
+        <Button
+          mode='outlined' style={styles.button} disabled={!itemNomorBpjs}
+          onPress={handleBookingOffline}>
+          Proses Booking Offline
         </Button>
-        <DateTimePicker
+        {/* <DateTimePicker
           isVisible={isDateTimePickerVisible}
           onConfirm={handleDatePicked}
           onCancel={hideDateTimePicker}
-        />
+        /> */}
         <Caption>{!!result && pasienSex}</Caption>
       </View>
     </View>
