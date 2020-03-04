@@ -117,7 +117,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
       },
     })
       .then(function (response) {
-        console.log(response.data.response.peserta);
+        // console.log(response.data.response.peserta);
         // console.log(response.data.response.list);
         setResult(response.data);
         setPasienNama(response.data.response.peserta.nama)
@@ -167,6 +167,8 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               userHandphone: '',
               userStatusPasien: 'BPJS',
               userTanggalBooking: '',
+              userSex: pasienSex,
+              userTanggalLahir: dayjs(pasienTanggalLahir).format('YYYY-MM-DD'),
             })
             const objUserUid = authUser.user.uid
             cekNomorAntrian(objUserUid);
@@ -185,7 +187,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         // antrian offline next        
         let latestOfflineQueue = result1.val().latestOfflineQueue + 1
         // start - rule nomor antrian disini
-        const ruleOnline = [4, 5, 9, 10, 14, 15, 19, 20]
+        const ruleOnline = [4, 5, 9, 10, 14, 15, 19, 20, 24, 25, 29, 30, 34, 35, 39, 40]
         if (ruleOnline.includes(latestOfflineQueue)) {
           latestOfflineQueue = latestOfflineQueue + 2
           // console.log('after' ,latestOfflineQueue)

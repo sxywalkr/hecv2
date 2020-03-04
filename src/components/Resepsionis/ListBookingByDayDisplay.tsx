@@ -30,11 +30,10 @@ interface Props {
 }
 
 function ListBooking({ theme, route, navigation }: Props) {
-    const { q } = route.params;
+    // const { q } = route.params;
     const user = useContext(UserContext);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
-    // const [userRole, setUserRole] = useState('')
 
     if (!user) {
         return null;
@@ -43,8 +42,7 @@ function ListBooking({ theme, route, navigation }: Props) {
 
 
     useEffect(() => {
-        // console.log(q)
-        const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
+        const ref = database().ref(`hecAntrian/indexes/2020-03-10/detail`);
         ref.once('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -82,15 +80,21 @@ function ListBooking({ theme, route, navigation }: Props) {
     return (
         <View style={styles.container} >
             {items.length > 0 ?
-                <FlatList data={items} renderItem={({ item }) =>
-                    <View style={styles.lists}>
-                        <View>
-                            <Title>Nama Pasien : {item.antrianUserNama}</Title>
-                            <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
+                <View>
+                    <Title>Antrian Klinik Mata Hasanuddin</Title>
+                    <Subheading>Tanggal : {dayjs('2020-03-10').format('DD MMM YYYY')}</Subheading>
+                    <View style={styles.space10} />
+                    <FlatList data={items} renderItem={({ item }) =>
+                        <View style={styles.lists}>
+                            <View>
+                                <Title>Nama Pasien : {item.antrianUserNama}</Title>
+                                <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
+                                {/* <Subheading>Estimasi Waktu Pelayanan : {dayjs('2020-02-10').hour}</Subheading> */}
+                            </View>
+                            {/* <Button onPress={() => onResetBooking(item)}>Reset Booking</Button> */}
                         </View>
-                        {/* <Button onPress={() => onResetBooking(item)}>Reset Booking</Button> */}
-                    </View>
-                } />
+                    } />
+                </View>
                 : <Title>Tidak ada antrian booking</Title>}
         </View>
     );
@@ -144,6 +148,10 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
+    space10: {
+        height: 15,
+        width: 15
+    }
 });
 
 export default withTheme(ListBooking);

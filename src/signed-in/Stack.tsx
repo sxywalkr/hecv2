@@ -13,6 +13,7 @@ import ResepsionisEditDiagnosa from '../components/Resepsionis/EditDiagnosa';
 import ResepsionisListDiagnosa from '../components/Resepsionis/ListDiagnosa';
 import ResepsionisListBooking from '../components/Resepsionis/ListBooking';
 import ResepsionisListBookingByDay from '../components/Resepsionis/ListBookingByDay';
+import ResepsionisListBookingByDayDisplay from '../components/Resepsionis/ListBookingByDayDisplay';
 import DokterListBookingByDay from '../components/Dokter/ListBookingByDay';
 import DokterViewRekamMedik from '../components/Dokter/ViewRekamMedik';
 import ApotekListBooking from '../components/Apotek/ListBookingApotek'
@@ -49,6 +50,7 @@ function SignedInStack({theme}: Props) {
         <Stack.Screen name="ResepsionisListDiagnosa" component={ResepsionisListDiagnosa} options={{title: 'List Diagnosa'}} />
         <Stack.Screen name="ResepsionisListBooking" component={ResepsionisListBooking} options={{title: 'List User Booking'}} />
         <Stack.Screen name="ResepsionisListBookingByDay" component={ResepsionisListBookingByDay} options={{title: 'List User Booking By Day'}} />
+        <Stack.Screen name="ResepsionisListBookingByDayDisplay" component={ResepsionisListBookingByDayDisplay} options={{header: null}} />
         <Stack.Screen name="DokterListBookingByDay" component={DokterListBookingByDay} options={{title: 'List User Booking By Day'}} />
         <Stack.Screen name="DokterViewRekamMedik" component={DokterViewRekamMedik} options={{title: 'View Rekam Medik'}} />
         <Stack.Screen name="ApotekListBooking" component={ApotekListBooking} options={{title: 'List Antri Apotek'}} />

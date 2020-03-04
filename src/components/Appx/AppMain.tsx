@@ -68,6 +68,12 @@ function AppMain({ theme, navigation }: Props) {
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListBooking')}>Lihat</Button>
               <Divider />
+              <Title>Display List User Booking:</Title>
+              <Paragraph>
+                Menampilkan display list user yang booking.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListBookingByDayDisplay')}>Lihat</Button>
+              <Divider />
               <Title>List Obat:</Title>
               <Paragraph>
                 List daftar Obat.
