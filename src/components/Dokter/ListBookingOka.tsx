@@ -21,7 +21,7 @@ import { NavigationParams } from 'react-navigation';
 import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
-import ListBookingCountByDay from '../Resepsionis/ListBookingCountByDay';
+import ListBookingOkaCountByDay from './ListBookingOkaCountByDay';
 
 interface Props {
   theme: Theme;
@@ -38,36 +38,6 @@ function ListBooking({ theme, navigation }: Props) {
     return null;
   }
 
-  // useEffect(() => {
-  //   // Create reference
-  //   const ref = database().ref(`users`).orderByChild('userFlagActivity').equalTo('Booking Antrian');
-  //   ref.on('value', onSnapshot);
-  //   return () => { ref.off() }
-  // }, [items]);
-
-  // function onSnapshot(snapshot) {
-  //   const list = [];
-  //   snapshot.forEach(item => {
-  //     // console.log(item.val().userTanggalBooking2)
-  //     list.push({
-  //       key: item.val().userUid,
-  //       ...item.val(),
-  //     });
-  //   });
-  //   setItems(list);
-  //   setLoading(false);
-  // }
-
-  // function onResetBooking(p) {
-  //   const ref = database().ref(`users/${p.userUid}`)
-  //   ref.update({
-  //     userFlagActivity: 'userIdle',
-  //     userTanggalBooking: '',
-  //     userTanggalBooking2: '',
-  //     userNomorAntrian: 0
-  //   })
-  // }
-
   function renderFields() {
     const noGuest = 7;
     const fields = [];
@@ -78,10 +48,9 @@ function ListBooking({ theme, navigation }: Props) {
         <View style={styles.lists} key={i}>
           <View style={{marginBottom: 0}}>
             <Title>{dayjs().add(i, 'day').format("YYYY-MM-DD")}</Title>
-            <ListBookingCountByDay datex={dayjs().add(i, 'day').format("YYYY-MM-DD")} />
+            <ListBookingOkaCountByDay datex={dayjs().add(i, 'day').format("YYYY-MM-DD")} />
           </View>
-          <Button onPress={() => navigation.navigate('ResepsionisListBookingByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
-          <Button onPress={() => navigation.navigate('ResepsionisListBookingByDayDisplay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Display</Button>
+          <Button onPress={() => navigation.navigate('DokterListBookingOkaByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
         </View>
       );
     }

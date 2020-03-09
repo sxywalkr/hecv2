@@ -68,11 +68,23 @@ function AppMain({ theme, navigation }: Props) {
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListBooking')}>Lihat</Button>
               <Divider />
-              <Title>Display List User Booking:</Title>
+              <Title>List Pasien BPJS</Title>
               <Paragraph>
-                Menampilkan display list user yang booking.
+                List Pasien BPJS
               </Paragraph>
-              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListBookingByDayDisplay')}>Lihat</Button>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListItemBpjs')}>Lihat</Button>
+              <Divider />
+              <Title>List Pasien Umum</Title>
+              <Paragraph>
+                List Pasien Umum
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListItemUmum')}>Lihat</Button>
+              <Divider />
+              <Title>List User Booking Kamar Operasi:</Title>
+              <Paragraph>
+                Menampilkan list user yang booking kamar operasi.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingOka', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
               <Divider />
               <Title>List Obat:</Title>
               <Paragraph>
@@ -85,11 +97,7 @@ function AppMain({ theme, navigation }: Props) {
                 List daftar Diagnosa.
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListDiagnosa')}>Lihat</Button>
-              <Title>List Pasien BPJS</Title>
-              <Paragraph>
-                List Pasien BPJS
-              </Paragraph>
-              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListItemBpjs')}>Lihat</Button>
+              
             </View>
           }
           {userRole === 'Dokter' &&
@@ -99,6 +107,11 @@ function AppMain({ theme, navigation }: Props) {
                 Menampilkan list user yang booking.
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingByDay', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
+              <Title>List User Booking Kamar Operasi:</Title>
+              <Paragraph>
+                Menampilkan list user yang booking kamar operasi.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingOka', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
             </View>
           }
           {userRole === 'Apotek' &&

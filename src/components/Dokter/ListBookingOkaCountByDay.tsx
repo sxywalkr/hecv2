@@ -22,27 +22,26 @@ import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
 
-
 interface Props {
     theme: Theme;
-    navigation: NavigationParams;
-    route: NavigationRoute;
+    // navigation: NavigationParams;
+    // route: NavigationRoute;
+    datex: string;
 }
 
-function ListBooking({ theme, route, navigation }: Props) {
-    const { q } = route.params;
+function ListBooking({ theme, datex }: Props) {
+    // const { q } = route.params;
     const user = useContext(UserContext);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
+    // const [userRole, setUserRole] = useState('')
 
     if (!user) {
         return null;
     }
 
-
-
     useEffect(() => {
-        const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
+        const ref = database().ref(`hecKamarOperasi`).orderByChild('hecKoTanggalOperasi').equalTo(datex);
         ref.once('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -52,24 +51,12 @@ function ListBooking({ theme, route, navigation }: Props) {
         snapshot.forEach(item => {
             if (item.val()) {
                 list.push({
-                    key: item.val().antrianUserUid,
-                    ...item.val(),
+                    key: item.val(),
                 });
             }
         });
         setItems(list);
         setLoading(false);
-    }
-    // console.log(items)
-
-    function onResetBooking(p) {
-        const ref = database().ref(`users/${p.userUid}`)
-        ref.update({
-            userFlagActivity: 'userIdle',
-            userTanggalBooking: '',
-            userTanggalBooking2: '',
-            userNomorAntrian: 0
-        })
     }
 
     if (loading) {
@@ -79,22 +66,8 @@ function ListBooking({ theme, route, navigation }: Props) {
     return (
         <View style={styles.container} >
             {items.length > 0 ?
-                <View>
-                    <Title>Antrian Klinik Mata Hasanuddin</Title>
-                    <Subheading>Tanggal : {dayjs('2020-03-10').format('DD MMM YYYY')}</Subheading>
-                    <View style={styles.space10} />
-                    <FlatList data={items} renderItem={({ item }) =>
-                        <View style={styles.lists}>
-                            <View>
-                                <Title>Nama Pasien : {item.antrianUserNama}</Title>
-                                <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
-                                {/* <Subheading>Estimasi Waktu Pelayanan : {dayjs('2020-02-10').hour()}</Subheading> */}
-                            </View>
-                            {/* <Button onPress={() => onResetBooking(item)}>Reset Booking</Button> */}
-                        </View>
-                    } />
-                </View>
-                : <Title>Tidak ada antrian booking</Title>}
+                <Subheading>Jumlah antrian: {items.length}</Subheading>
+                : <Subheading>Tidak ada antrian</Subheading>}
         </View>
     );
 }
@@ -147,10 +120,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
-    space10: {
-        height: 15,
-        width: 15
-    }
 });
 
 export default withTheme(ListBooking);

@@ -16,6 +16,7 @@ import {
   withTheme,
   IconButton,
   Colors,
+  List,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
@@ -23,6 +24,8 @@ import { NavigationParams, NavigationRoute } from 'react-navigation';
 import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
+import DateTimePicker from "react-native-modal-datetime-picker";
+
 
 interface Props {
   theme: Theme;
@@ -49,29 +52,46 @@ function Profile({ theme, navigation, route }: Props) {
   const [openDiagTindakan, setOpenDiagTindakan] = useState(false);
   const [selectedItemsObat, setSelectedItemsObat] = useState([]);
   const [selectedItemsTindakan, setSelectedItemsTindakan] = useState([]);
+  const [bookingDateOka, setBookingDateOka] = useState();
+  const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
 
   if (!user) {
     return null;
   }
   // ++++++++++++++++++ ambil data pasien 
   useEffect(() => {
-    const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
-    ref.on('value', onSnapshot);
+    // const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
+    const ref = database().ref(`users/${q.antrianUserUid}`);
+    ref.once('value', onSnapshot2);
     return () => { ref.off() }
   }, [items]);
 
-  function onSnapshot(snapshot) {
+  function onSnapshot2(snapshot) {
+    // console.log(snapshot.val())
     const list = [];
-    snapshot.forEach(item => {
-      list.push({
-        key: item.val().userUid,
-        ...item.val(),
-      });
+    // snapshot.forEach(item => {
+    list.push({
+      key: snapshot.val().userUid,
+      ...snapshot.val(),
     });
+    // });
     // console.log(list)
     setItems(list);
     setLoading(false);
   }
+  // function onSnapshot(snapshot) {
+  //   // console.log(snapshot.val())
+  //   const list = [];
+  //   snapshot.forEach(item => {
+  //     list.push({
+  //       key: item.val().userUid,
+  //       ...item.val(),
+  //     });
+  //   });
+  //   // console.log(list)
+  //   setItems(list);
+  //   setLoading(false);
+  // }
 
   // ++++++++++++++++++ ambil data obat 
   useEffect(() => {
@@ -136,6 +156,14 @@ function Profile({ theme, navigation, route }: Props) {
     // console.log(dayjs().month()+1)
     setLoadingSelectedDiagnosa(true)
   }
+  // ++++++++++++++++++ proses show date time picker
+  const showDateTimePicker = () => {
+    setIsDateTimePickerVisible(true)
+  };
+
+  const hideDateTimePicker = () => {
+    setIsDateTimePickerVisible(false)
+  };
   // ++++++++++++++++++ proses ke apotek
   const onSubmitRekamMedik = () => {
     const a = database().ref('rekamMedikPasien').push();
@@ -163,8 +191,21 @@ function Profile({ theme, navigation, route }: Props) {
   }
 
   // ++++++++++++++++++ proses ke oka
-  const onSubmitRekamMedikKeOka = () => {
-    const a = database().ref('rekamMedikPasien').push();
+  const onSubmitRekamMedikKeOka = date => {
+    console.log(items[0])
+    const a0 = dayjs(date).format('YYYY-MM-DD')
+    const a = database().ref('hecKamarOperasi').push();
+    database().ref('hecKamarOperasi').push({
+      hecKoId: a.key,
+      hecKoKodeBooking: items[0].userUid,
+      hecKoTanggalOperasi: a0,
+      hecKoJenisTindakan: 'operasi mata',
+      hecKoKodePoli: 'MAT',
+      hecKoNamaPoli: 'MATA',
+      hecKoTerlaksana: 0,
+      hecKoUserUid: items[0].userUid,
+      hecKoUserNoBpjs: items[0].userNoBpjs
+    })
     database().ref('rekamMedikPasien/' + a.key).update({
       rekamMedikId: a.key,
       rekamMedikTanggal: dayjs().format(),
@@ -180,20 +221,20 @@ function Profile({ theme, navigation, route }: Props) {
       rekamMedikKeOka: true,
       rekamMedikFlag: 'Poli OK, Oka Nok, Apotek NOK, Billing NOK',
     });
-    database().ref('okaRoom/' + a.key).update({
-      okaId: a.key,
-      okaTanggal: dayjs().format(),
-      okaTanggal2: dayjs().format("YYYY-MM-DD"),
-      okaBulan: dayjs().month() + 1,
-      okaIdPasien: q.key,
-      okaNamaPasien: q.userName,
-      okaStatusPasien: q.userStatusPasien,
-      okaObat: JSON.stringify(itemsFilteredObat),
-      okaDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
-      okaIdDokter: user.uid,
-      okaNamaDokter: user.displayName ? user.displayName : user.email,
-      okaFlag: 'Poli OK, Oka NOK, Apotek NOK, Billing NOK',
-    });
+    // database().ref('okaRoom/' + a.key).update({
+    //   okaId: a.key,
+    //   okaTanggal: dayjs().format(),
+    //   okaTanggal2: dayjs().format("YYYY-MM-DD"),
+    //   okaBulan: dayjs().month() + 1,
+    //   okaIdPasien: q.key,
+    //   okaNamaPasien: q.userName,
+    //   okaStatusPasien: q.userStatusPasien,
+    //   okaObat: JSON.stringify(itemsFilteredObat),
+    //   okaDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
+    //   okaIdDokter: user.uid,
+    //   okaNamaDokter: user.displayName ? user.displayName : user.email,
+    //   okaFlag: 'Poli OK, Oka NOK, Apotek NOK, Billing NOK',
+    // });
     database().ref('users/' + q.key).update({
       userFlagActivity: 'Antri Oka',
       userTanggalBooking: '',
@@ -205,14 +246,16 @@ function Profile({ theme, navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Title>{q.userName}</Title>
+        {!!items[0] && <Title>{items[0].userName}</Title>}
+        {/* {console.log(items)} */}
         <View style={{ flexDirection: 'row' }}>
           <Button style={{ flex: 1 }} mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
             onPress={() => onSubmitRekamMedik()} >
             Ke Apotek
           </Button>
-          <Button style={{ flex: 1 }} mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
-            onPress={() => onSubmitRekamMedikKeOka()} >
+          <Button style={{ flex: 1 }} mode='outlined'
+            // disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
+            onPress={() => showDateTimePicker()} >
             Ke Oka
         </Button>
         </View>
@@ -221,6 +264,13 @@ function Profile({ theme, navigation, route }: Props) {
           <IconButton icon={itemsFilteredObat.length > 0 ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20} />
           <Paragraph>Diagnosa Obat</Paragraph>
         </View> */}
+      </View>
+      <View>
+        <DateTimePicker
+          isVisible={isDateTimePickerVisible}
+          onConfirm={onSubmitRekamMedikKeOka}
+          onCancel={hideDateTimePicker}
+        />
       </View>
       <View style={styles.spaceV10} />
       {!!openDiagObat &&

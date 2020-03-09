@@ -39,10 +39,8 @@ function ListBooking({ theme, route, navigation }: Props) {
         return null;
     }
 
-
-
     useEffect(() => {
-        const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
+        const ref = database().ref(`hecKamarOperasi`).orderByChild('hecKoTanggalOperasi').equalTo(q);
         ref.once('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -52,24 +50,13 @@ function ListBooking({ theme, route, navigation }: Props) {
         snapshot.forEach(item => {
             if (item.val()) {
                 list.push({
-                    key: item.val().antrianUserUid,
+                    key: item.val().hecKoId,
                     ...item.val(),
                 });
             }
         });
         setItems(list);
         setLoading(false);
-    }
-    // console.log(items)
-
-    function onResetBooking(p) {
-        const ref = database().ref(`users/${p.userUid}`)
-        ref.update({
-            userFlagActivity: 'userIdle',
-            userTanggalBooking: '',
-            userTanggalBooking2: '',
-            userNomorAntrian: 0
-        })
     }
 
     if (loading) {
@@ -81,13 +68,14 @@ function ListBooking({ theme, route, navigation }: Props) {
             {items.length > 0 ?
                 <View>
                     <Title>Antrian Klinik Mata Hasanuddin</Title>
-                    <Subheading>Tanggal : {dayjs('2020-03-10').format('DD MMM YYYY')}</Subheading>
+                    <Subheading>Tanggal : {dayjs(q).format('DD MMM YYYY')}</Subheading>
                     <View style={styles.space10} />
                     <FlatList data={items} renderItem={({ item }) =>
                         <View style={styles.lists}>
                             <View>
-                                <Title>Nama Pasien : {item.antrianUserNama}</Title>
-                                <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
+                                <Title>Nama Pasien : {item.hecKoUserNoBpjs}</Title>
+                                <Paragraph>Kode Booking : {item.hecKoKodeBooking}</Paragraph>
+                                <Paragraph>Jenis Tindakan : {item.hecKoJenisTindakan}</Paragraph>
                                 {/* <Subheading>Estimasi Waktu Pelayanan : {dayjs('2020-02-10').hour()}</Subheading> */}
                             </View>
                             {/* <Button onPress={() => onResetBooking(item)}>Reset Booking</Button> */}

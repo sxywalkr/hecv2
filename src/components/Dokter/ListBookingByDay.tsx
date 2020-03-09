@@ -40,7 +40,9 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q);
+        // const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo('2020-03-10');
+        // console.log(q)
+        const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
         ref.on('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -48,10 +50,12 @@ function ListBooking({ theme, route, navigation }: Props) {
     function onSnapshot(snapshot) {
         const list = [];
         snapshot.forEach(item => {
-            list.push({
-                key: item.val().userUid,
-                ...item.val(),
-            });
+            if (item.val()) {
+                list.push({
+                    key: item.val().antrianUserUid,
+                    ...item.val(),
+                });
+            }
         });
         setItems(list);
         setLoading(false);
@@ -67,10 +71,11 @@ function ListBooking({ theme, route, navigation }: Props) {
                 <FlatList data={items} renderItem={({ item }) =>
                     <View style={styles.lists}>
                         <View>
-                            <Title>{item.userName}</Title>
-                            <Paragraph>Nomor antrian : {item.userNomorAntrian}</Paragraph>
+                            <Title>Nama Pasien : {item.antrianUserNama}</Title>
+                            <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
                         </View>
                         <Button onPress={() => navigation.navigate('DokterViewRekamMedik', { q: item })}>Proses</Button>
+                        {/* {console.log(item)} */}
                     </View>
                 } />
                 : <Title>Tidak ada pasien</Title>}
