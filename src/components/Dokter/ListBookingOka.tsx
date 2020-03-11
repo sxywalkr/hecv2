@@ -39,7 +39,7 @@ function ListBooking({ theme, navigation }: Props) {
   }
 
   function renderFields() {
-    const noGuest = 7;
+    const noGuest = 60;
     const fields = [];
     for (let i = 0; i < noGuest; i++) {
       // Try avoiding the use of index as a key, it has to be unique!

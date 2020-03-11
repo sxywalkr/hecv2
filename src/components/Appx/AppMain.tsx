@@ -86,18 +86,35 @@ function AppMain({ theme, navigation }: Props) {
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('DokterListBookingOka', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
               <Divider />
-              <Title>List Obat:</Title>
+              <Title>List Pemeriksaan:</Title>
               <Paragraph>
-                List daftar Obat.
+                List daftar Pemeriksaan.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListTindakanNonOp')}>Lihat</Button>
+              <Divider />
+              <Title>List Diagnosis:</Title>
+              <Paragraph>
+                List daftar Diagnosis.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListDiagnosa')}>Lihat</Button>
+              <Divider />
+              <Title>List Medikamentosa:</Title>
+              <Paragraph>
+                List daftar Medikamentosa.
               </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListItem')}>Lihat</Button>
               <Divider />
-              <Title>List Diagnosa:</Title>
+              <Title>List Tindakan Operasi:</Title>
               <Paragraph>
-                List daftar Diagnosa.
+                List daftar Tindakan Operasi.
               </Paragraph>
-              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListDiagnosa')}>Lihat</Button>
-              
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListTindakanOp')}>Lihat</Button>
+              <Divider />
+              <Title>List Kacamata:</Title>
+              <Paragraph>
+                List daftar Kacamata.
+              </Paragraph>
+              <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('ResepsionisListKacamata')}>Lihat</Button>
             </View>
           }
           {userRole === 'Dokter' &&

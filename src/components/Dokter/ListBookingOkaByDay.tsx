@@ -73,7 +73,8 @@ function ListBooking({ theme, route, navigation }: Props) {
                     <FlatList data={items} renderItem={({ item }) =>
                         <View style={styles.lists}>
                             <View>
-                                <Title>Nama Pasien : {item.hecKoUserNoBpjs}</Title>
+                                <Title>Nama Pasien : {item.hecKoUserName}</Title>
+                                <Paragraph>Nomor BPJS : {item.hecKoUserNoBpjs}</Paragraph>
                                 <Paragraph>Kode Booking : {item.hecKoKodeBooking}</Paragraph>
                                 <Paragraph>Jenis Tindakan : {item.hecKoJenisTindakan}</Paragraph>
                                 {/* <Subheading>Estimasi Waktu Pelayanan : {dayjs('2020-02-10').hour()}</Subheading> */}

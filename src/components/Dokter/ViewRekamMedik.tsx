@@ -39,19 +39,41 @@ function Profile({ theme, navigation, route }: Props) {
   const [loading, setLoading] = useState(true);
   const [loadingObat, setLoadingObat] = useState(true);
   const [loadingDiagnosa, setLoadingDiagnosa] = useState(true);
+  const [loadingTindakanNonOp, setLoadingTindakanNonOp] = useState(true);
+  const [loadingTindakanOp, setLoadingTindakanOp] = useState(true);
+  const [loadingKacamata, setLoadingKacamata] = useState(true);
+
   const [loadingSelectedObat, setLoadingSelectedObat] = useState(true);
   const [loadingSelectedDiagnosa, setLoadingSelectedDiagnosa] = useState(true);
+  const [loadingSelectedTindakanNonOp, setLoadingSelectedTindakanNonOp] = useState(true);
+  const [loadingSelectedTindakanOp, setLoadingSelectedTindakanOp] = useState(true);
+  const [loadingSelectedKacamata, setLoadingSelectedKacamata] = useState(true);
+
   const [items, setItems] = useState([]);
   const [itemsObat, setItemsObat] = useState([]);
   const [itemsDiagnosa, setItemsDiagnosa] = useState([]);
+  const [itemsTindakanNonOp, setItemsTindakanNonOp] = useState([]);
+  const [itemsTindakanOp, setItemsTindakanOp] = useState([]);
+  const [itemsKacamata, setItemsKacamata] = useState([]);
+
   const [itemsFilteredObat, setItemsFilteredObat] = useState([]);
   const [itemsFilteredDiagnosa, setItemsFilteredDiagnosa] = useState([]);
+  const [itemsFilteredTindakanNonOp, setItemsFilteredTindakanNonOp] = useState([]);
+  const [itemsFilteredTindakanOp, setItemsFilteredTindakanOp] = useState([]);
+  const [itemsFilteredKacamata, setItemsFilteredKacamata] = useState([]);
+
   const [itemsTindakan, setItemsTindakan] = useState([]);
   const [openFab, setOpenFab] = useState(false);
   const [openDiagObat, setOpenDiagObat] = useState(false);
   const [openDiagTindakan, setOpenDiagTindakan] = useState(false);
+  const [openDiagTindakanNonOp, setOpenDiagTindakanNonOp] = useState(false);
+  const [openDiagTindakanOp, setOpenDiagTindakanOp] = useState(false);
+  const [openDiagKacamata, setOpenDiagKacamata] = useState(false);
+
   const [selectedItemsObat, setSelectedItemsObat] = useState([]);
   const [selectedItemsTindakan, setSelectedItemsTindakan] = useState([]);
+  const [selectedItemsTindakanNonOp, setSelectedItemsTindakanNonOp] = useState([]);
+  const [selectedItemsTindakanOp, setSelectedItemsTindakanOp] = useState([]);
   const [bookingDateOka, setBookingDateOka] = useState();
   const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
 
@@ -60,18 +82,18 @@ function Profile({ theme, navigation, route }: Props) {
   }
   // ++++++++++++++++++ ambil data pasien  0001430503648
   useEffect(() => {
-    // const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
+    // delete antrian 
     // console.log(q)
-    // console.log(q)
-    database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
-    const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
-    delUserBpjs.once('value', (snap1) => {
-      // console.log('', snap1.val())
-      // console.log(Object.keys(snap1.val()))
-      if (snap1.exists()) {
-        database().ref(`userBpjs/${Object.keys(snap1.val())}`).remove();
-      }
-    })
+    if (q.antrianUserBpjsNomorReferensi) {
+      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
+      const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
+      delUserBpjs.once('value', (snap1) => {
+        if (snap1.exists()) {
+          database().ref(`userBpjs/${Object.keys(snap1.val())}`).remove();
+        }
+      })
+    }
+
     const ref = database().ref(`users/${q.antrianUserUid}`);
     ref.once('value', onSnapshot2);
     return () => { ref.off() }
@@ -88,7 +110,7 @@ function Profile({ theme, navigation, route }: Props) {
     // });
     setItems(list);
     // hapus pasien dari antrian
-    
+
     setLoading(false);
   }
   // function onSnapshot(snapshot) {
@@ -108,7 +130,7 @@ function Profile({ theme, navigation, route }: Props) {
   // ++++++++++++++++++ ambil data obat 
   useEffect(() => {
     const ref = database().ref(`obat`)
-    ref.on('value', onSnapshotObat);
+    ref.once('value', onSnapshotObat);
     return () => { ref.off() }
   }, [loadingObat]);
 
@@ -128,7 +150,7 @@ function Profile({ theme, navigation, route }: Props) {
   // ++++++++++++++++++ ambil data diagnosa
   useEffect(() => {
     const ref = database().ref(`diagnosa`)
-    ref.on('value', onSnapshotDiagnosa);
+    ref.once('value', onSnapshotDiagnosa);
     return () => { ref.off() }
   }, [loadingDiagnosa]);
 
@@ -143,6 +165,63 @@ function Profile({ theme, navigation, route }: Props) {
     });
     setItemsDiagnosa(list);
     setLoadingDiagnosa(false);
+  }
+  // ++++++++++++++++++ ambil data tindakan non op
+  useEffect(() => {
+    const ref = database().ref(`hecRefTindakanNonOp`)
+    ref.once('value', onSnapshotTindakanNonOp);
+    return () => { ref.off() }
+  }, [loadingTindakanNonOp]);
+
+  function onSnapshotTindakanNonOp(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdTindakanNonOp,
+        selectedTindakanNonOp: false,
+        ...item.val(),
+      });
+    });
+    setItemsTindakanNonOp(list);
+    setLoadingTindakanNonOp(false);
+  }
+  // ++++++++++++++++++ ambil data tindakan  op
+  useEffect(() => {
+    const ref = database().ref(`hecRefTindakanOp`)
+    ref.once('value', onSnapshotTindakanOp);
+    return () => { ref.off() }
+  }, [loadingTindakanOp]);
+
+  function onSnapshotTindakanOp(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdTindakanOp,
+        selectedTindakanOp: false,
+        ...item.val(),
+      });
+    });
+    setItemsTindakanOp(list);
+    setLoadingTindakanOp(false);
+  }
+  // ++++++++++++++++++ ambil data kacamata
+  useEffect(() => {
+    const ref = database().ref(`hecRefKacamata`)
+    ref.once('value', onSnapshotKacamata);
+    return () => { ref.off() }
+  }, [loadingKacamata]);
+
+  function onSnapshotKacamata(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdKacamata,
+        selectedKacamata: false,
+        ...item.val(),
+      });
+    });
+    setItemsKacamata(list);
+    setLoadingKacamata(false);
   }
   // ++++++++++++++++++ proses filter obat
   useEffect(() => {
@@ -165,8 +244,43 @@ function Profile({ theme, navigation, route }: Props) {
 
   const onSelectDiagnosa = (q) => {
     itemsDiagnosa[q].selectedDiagnosa = !itemsDiagnosa[q].selectedDiagnosa
-    // console.log(dayjs().month()+1)
     setLoadingSelectedDiagnosa(true)
+  }
+  // ++++++++++++++++++ proses filter tindakan non operasi
+  useEffect(() => {
+    // console.log(itemsDiagnosa[q].selectedTindakanNonOp)
+    const filteredTindakanNonOp = itemsTindakanNonOp.filter((el) => el.selectedTindakanNonOp === true)
+    setItemsFilteredTindakanNonOp(filteredTindakanNonOp)
+    setLoadingSelectedTindakanNonOp(false)
+  }, [loadingSelectedTindakanNonOp])
+
+  const onSelectTindakanNonOp = (q) => {
+    itemsTindakanNonOp[q].selectedTindakanNonOp = !itemsTindakanNonOp[q].selectedTindakanNonOp
+    setLoadingSelectedTindakanNonOp(true)
+  }
+  // ++++++++++++++++++ proses filter tindakan  operasi
+  useEffect(() => {
+    const filteredTindakanOp = itemsTindakanOp.filter((el) => el.selectedTindakanOp === true)
+    setItemsFilteredTindakanOp(filteredTindakanOp)
+    setLoadingSelectedTindakanOp(false)
+  }, [loadingSelectedTindakanOp])
+
+  const onSelectTindakanOp = (q) => {
+    itemsTindakanOp[q].selectedTindakanOp = !itemsTindakanOp[q].selectedTindakanOp
+    // console.log(dayjs().month()+1)
+    setLoadingSelectedTindakanOp(true)
+  }
+  // ++++++++++++++++++ proses filter kacamata
+  useEffect(() => {
+    const filteredKacamata = itemsKacamata.filter((el) => el.selectedKacamata === true)
+    setItemsFilteredKacamata(filteredKacamata)
+    setLoadingSelectedKacamata(false)
+  }, [loadingSelectedKacamata])
+
+  const onSelectKacamata = (q) => {
+    itemsKacamata[q].selectedKacamata = !itemsKacamata[q].selectedKacamata
+    // console.log(dayjs().month()+1)
+    setLoadingSelectedKacamata(true)
   }
   // ++++++++++++++++++ proses show date time picker
   const showDateTimePicker = () => {
@@ -187,8 +301,10 @@ function Profile({ theme, navigation, route }: Props) {
       rekamMedikIdPasien: q.key,
       rekamMedikNamaPasien: q.userName,
       rekamMedikStatusPasien: q.userStatusPasien,
-      rekamMedikObat: JSON.stringify(itemsFilteredObat),
-      rekamMedikDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
+      rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
+      rekamMedikKacamata: JSON.stringify(itemsFilteredKacamata),
       rekamMedikIdDokter: user.uid,
       rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
       rekamMedikKeOka: false,
@@ -199,24 +315,37 @@ function Profile({ theme, navigation, route }: Props) {
       userTanggalBooking: '',
       userTanggalBooking2: '',
     })
+    const addAntrianTerlayani = database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`);
+    addAntrianTerlayani.once('value', (snap2) => {
+      if (snap2.exists()) {
+        // const terlayani = snap2.val().antrianTerlayani
+        database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`).update({
+          antrianTerlayani: snap2.val().antrianTerlayani ? snap2.val().antrianTerlayani + 1 : 1
+        })
+      }
+    })
     navigation.navigate('AppHome')
   }
 
   // ++++++++++++++++++ proses ke oka
   const onSubmitRekamMedikKeOka = date => {
-    console.log(items[0])
+    // console.log(items[0])
+    // console.log(itemsTindakanOp)
     const a0 = dayjs(date).format('YYYY-MM-DD')
     const a = database().ref('hecKamarOperasi').push();
     database().ref('hecKamarOperasi').push({
       hecKoId: a.key,
       hecKoKodeBooking: items[0].userUid,
       hecKoTanggalOperasi: a0,
-      hecKoJenisTindakan: 'operasi mata',
+      hecKoJenisTindakan: itemsTindakanOp[0].itemNamaTindakanOp,
       hecKoKodePoli: 'MAT',
       hecKoNamaPoli: 'MATA',
       hecKoTerlaksana: 0,
       hecKoUserUid: items[0].userUid,
-      hecKoUserNoBpjs: items[0].userNoBpjs
+      hecKoUserName: items[0].userName,
+      hecKoUserNoBpjs: items[0].userNoBpjs,
+      hecKoNamaDokter: user.displayName ? user.displayName : user.email,
+      hecKoIdDokter: user.uid
     })
     database().ref('rekamMedikPasien/' + a.key).update({
       rekamMedikId: a.key,
@@ -226,31 +355,29 @@ function Profile({ theme, navigation, route }: Props) {
       rekamMedikIdPasien: q.key,
       rekamMedikNamaPasien: q.userName,
       rekamMedikStatusPasien: q.userStatusPasien,
-      rekamMedikObat: JSON.stringify(itemsFilteredObat),
-      rekamMedikDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
+      rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
+      rekamMedikOperasi: JSON.stringify(itemsFilteredTindakanOp),
+      rekamMedikKacamata: JSON.stringify(itemsFilteredKacamata),
       rekamMedikIdDokter: user.uid,
       rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
       rekamMedikKeOka: true,
       rekamMedikFlag: 'Poli OK, Oka Nok, Apotek NOK, Billing NOK',
     });
-    // database().ref('okaRoom/' + a.key).update({
-    //   okaId: a.key,
-    //   okaTanggal: dayjs().format(),
-    //   okaTanggal2: dayjs().format("YYYY-MM-DD"),
-    //   okaBulan: dayjs().month() + 1,
-    //   okaIdPasien: q.key,
-    //   okaNamaPasien: q.userName,
-    //   okaStatusPasien: q.userStatusPasien,
-    //   okaObat: JSON.stringify(itemsFilteredObat),
-    //   okaDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
-    //   okaIdDokter: user.uid,
-    //   okaNamaDokter: user.displayName ? user.displayName : user.email,
-    //   okaFlag: 'Poli OK, Oka NOK, Apotek NOK, Billing NOK',
-    // });
     database().ref('users/' + q.key).update({
       userFlagActivity: 'Antri Oka',
       userTanggalBooking: '',
       userTanggalBooking2: '',
+    })
+    const addAntrianTerlayani = database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`);
+    addAntrianTerlayani.once('value', (snap2) => {
+      if (snap2.exists()) {
+        // const terlayani = snap2.val().antrianTerlayani
+        database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`).update({
+          antrianTerlayani: snap2.val().antrianTerlayani ? snap2.val().antrianTerlayani + 1 : 1
+        })
+      }
     })
     navigation.navigate('AppHome')
   }
@@ -261,12 +388,14 @@ function Profile({ theme, navigation, route }: Props) {
         {!!items[0] && <Title>{items[0].userName}</Title>}
         {/* {console.log(items)} */}
         <View style={{ flexDirection: 'row' }}>
-          <Button style={{ flex: 1 }} mode='outlined' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
+          <Button style={{ flex: 1 }} mode='outlined'
+            disabled={(itemsFilteredObat.length > 0) ? false : true}
             onPress={() => onSubmitRekamMedik()} >
             Ke Apotek
           </Button>
           <Button style={{ flex: 1 }} mode='outlined'
             // disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true}
+            disabled={(itemsFilteredTindakanOp.length > 0) ? false : true}
             onPress={() => showDateTimePicker()} >
             Ke Oka
         </Button>
@@ -308,7 +437,7 @@ function Profile({ theme, navigation, route }: Props) {
           } />
         </View>
       }
-      <View style={styles.spaceV10} />
+      {/* <View style={styles.spaceV10} /> */}
       {!!openDiagTindakan &&
         <View style={styles.content}>
           <View style={styles.contentRowIconRight}>
@@ -334,6 +463,58 @@ function Profile({ theme, navigation, route }: Props) {
           <View style={styles.spaceV10} />
         </View>
       }
+      {/* <View style={styles.spaceV10} /> */}
+      {!!openDiagTindakanNonOp &&
+        <View style={styles.content}>
+          <View style={styles.contentRowIconRight}>
+            <Title>Tindakan Non Operasi</Title>
+            <IconButton icon="refresh" color={Colors.grey800} size={20}
+              onPress={() => setLoadingTindakanNonOp(true)} />
+            <IconButton icon="close" color={Colors.red500} size={20}
+              onPress={() => setOpenDiagTindakanNonOp(!openDiagTindakanNonOp)} />
+          </View>
+          <FlatList data={itemsTindakanNonOp} renderItem={({ item, index }) =>
+            <View style={styles.lists}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton icon={item.selectedTindakanNonOp ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
+                  onPress={() => onSelectTindakanNonOp(index)} />
+                <View>
+                  <Subheading>{item.itemNamaTindakanNonOp}</Subheading>
+                  <Caption>{item.itemHargaJualTindakanNonOp}</Caption>
+                </View>
+              </View>
+              <View style={styles.spaceV10} />
+            </View>
+          } />
+          <View style={styles.spaceV10} />
+        </View>
+      }
+      {/* <View style={styles.spaceV10} /> */}
+      {!!openDiagTindakanOp &&
+        <View style={styles.content}>
+          <View style={styles.contentRowIconRight}>
+            <Title>Tindakan  Operasi</Title>
+            <IconButton icon="refresh" color={Colors.grey800} size={20}
+              onPress={() => setLoadingTindakanOp(true)} />
+            <IconButton icon="close" color={Colors.red500} size={20}
+              onPress={() => setOpenDiagTindakanOp(!openDiagTindakanOp)} />
+          </View>
+          <FlatList data={itemsTindakanOp} renderItem={({ item, index }) =>
+            <View style={styles.lists}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton icon={item.selectedTindakanOp ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
+                  onPress={() => onSelectTindakanOp(index)} />
+                <View>
+                  <Subheading>{item.itemNamaTindakanOp}</Subheading>
+                  <Caption>{item.itemHargaJualTindakanOp}</Caption>
+                </View>
+              </View>
+              <View style={styles.spaceV10} />
+            </View>
+          } />
+          <View style={styles.spaceV10} />
+        </View>
+      }
 
       <Provider>
         <Portal>
@@ -342,8 +523,11 @@ function Profile({ theme, navigation, route }: Props) {
             icon={openFab ? 'settings' : 'add'}
             // icon="settings"
             actions={[
-              { icon: 'star', label: 'Tambah Diagnose Obat', onPress: () => setOpenDiagObat(!openDiagObat) },
-              { icon: 'email', label: 'Tambah Diagnosa Tindakan', onPress: () => setOpenDiagTindakan(!openDiagTindakan) },
+              { icon: 'star', label: 'Pemeriksaan', onPress: () => setOpenDiagTindakanNonOp(!openDiagTindakanNonOp) },
+              { icon: 'star', label: 'Diagnosis', onPress: () => setOpenDiagTindakan(!openDiagTindakan) },
+              { icon: 'star', label: 'Terapi - Medikamentosa', onPress: () => setOpenDiagObat(!openDiagObat) },
+              { icon: 'star', label: 'Terapi - Operasi', onPress: () => setOpenDiagTindakanOp(!openDiagTindakanOp) },
+              { icon: 'star', label: 'Terapi - Kacamata', onPress: () => setOpenDiagTindakanOp(!openDiagTindakanOp) },
             ]}
             onStateChange={({ open }) => setOpenFab(open)}
             onPress={() => {

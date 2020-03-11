@@ -12,6 +12,12 @@ import ResepsionisListItem from '../components/Resepsionis/ListItem';
 import ResepsionisEditItem from '../components/Resepsionis/EditItem';
 import ResepsionisEditDiagnosa from '../components/Resepsionis/EditDiagnosa';
 import ResepsionisListDiagnosa from '../components/Resepsionis/ListDiagnosa';
+import ResepsionisEditTindakanNonOp from '../components/Resepsionis/EditTindakanNonOp';
+import ResepsionisListTindakanNonOp from '../components/Resepsionis/ListTindakanNonOp';
+import ResepsionisEditTindakanOp from '../components/Resepsionis/EditTindakanOp';
+import ResepsionisListTindakanOp from '../components/Resepsionis/ListTindakanOp';
+import ResepsionisEditKacamata from '../components/Resepsionis/EditKacamata';
+import ResepsionisListKacamata from '../components/Resepsionis/ListKacamata';
 import ResepsionisListBooking from '../components/Resepsionis/ListBooking';
 import ResepsionisListBookingByDay from '../components/Resepsionis/ListBookingByDay';
 import ResepsionisListBookingByDayDisplay from '../components/Resepsionis/ListBookingByDayDisplay';
@@ -53,6 +59,12 @@ function SignedInStack({theme}: Props) {
         <Stack.Screen name="ResepsionisEditDiagnosa" component={ResepsionisEditDiagnosa} options={{title: 'Edit Diagnosa'}} />
         <Stack.Screen name="ResepsionisListDiagnosa" component={ResepsionisListDiagnosa} options={{title: 'List Diagnosa'}} />
         <Stack.Screen name="ResepsionisListBooking" component={ResepsionisListBooking} options={{title: 'List User Booking'}} />
+        <Stack.Screen name="ResepsionisEditTindakanNonOp" component={ResepsionisEditTindakanNonOp} options={{title: 'Edit Tindakan Non Operasi'}} />
+        <Stack.Screen name="ResepsionisListTindakanNonOp" component={ResepsionisListTindakanNonOp} options={{title: 'List Tindakan Non Operasi'}} />
+        <Stack.Screen name="ResepsionisEditTindakanOp" component={ResepsionisEditTindakanOp} options={{title: 'Edit Tindakan  Operasi'}} />
+        <Stack.Screen name="ResepsionisListTindakanOp" component={ResepsionisListTindakanOp} options={{title: 'List Tindakan  Operasi'}} />
+        <Stack.Screen name="ResepsionisEditKacamata" component={ResepsionisEditKacamata} options={{title: 'Edit Kacamata'}} />
+        <Stack.Screen name="ResepsionisListKacamata" component={ResepsionisListKacamata} options={{title: 'List Kacamata'}} />
         <Stack.Screen name="ResepsionisListBookingByDay" component={ResepsionisListBookingByDay} options={{title: 'List User Booking By Day'}} />
         <Stack.Screen name="ResepsionisListBookingByDayDisplay" component={ResepsionisListBookingByDayDisplay} options={{header: null}} />
         <Stack.Screen name="DokterListBookingByDay" component={DokterListBookingByDay} options={{title: 'List User Booking By Day'}} />
