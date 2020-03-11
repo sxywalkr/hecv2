@@ -49,7 +49,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
   const [bookingDate, setBookingDate] = useState();
   
-  const [pasienNomorKtp, setPasienNomorKtp] = useState('000001111112345')
+  const [pasienNomorKtp, setPasienNomorKtp] = useState('')
   const [pasienNama, setPasienNama] = useState()
   const [pasienSex, setPasienSex] = useState()
   const [pasienTanggalLahir, setPasienTanggalLahir] = useState()
@@ -96,8 +96,8 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   }
 
   const cekNomorAntrian = (result) => {
-    // const tanggalYMD = dayjs().format("YYYY-MM-DD");
-    const tanggalYMD = dayjs().format("2020-03-09");
+    const tanggalYMD = dayjs().format("YYYY-MM-DD");
+    // const tanggalYMD = dayjs().format("2020-03-09");
     const objUserUid = result
 
     // const ref0 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value');
@@ -138,6 +138,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserUid: objUserUid,
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNomorKtp,
+              antrianUserBpjsNomorReferensi: objUserUid,
               antrianTanggalBooking9: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({
@@ -164,6 +165,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserUid: objUserUid,
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNomorKtp,
+              antrianUserBpjsNomorReferensi: objUserUid,
               antrianTanggalBooking2: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({

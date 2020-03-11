@@ -73,6 +73,7 @@ function ListBooking({ theme, route, navigation }: Props) {
                         <View>
                             <Title>Nama Pasien : {item.antrianUserNama}</Title>
                             <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
+                            <Paragraph>Nomor referensi : {item.antrianUserBpjsNomorReferensi}</Paragraph>
                         </View>
                         <Button onPress={() => navigation.navigate('DokterViewRekamMedik', { q: item })}>Proses</Button>
                         {/* {console.log(item)} */}

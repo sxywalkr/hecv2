@@ -58,7 +58,6 @@ function EditItem({ theme, route, navigation }: Props) {
         setSavingItem(false)
       }
     }
-
   }
 
   return (

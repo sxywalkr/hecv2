@@ -192,7 +192,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
     // const tanggalYMD = dayjs().format("2020-03-09");
     const objUserUid = result
 
-    // const ref0 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value');
+    // const ref0 = database().ref(`hecAntrian/indexes/${tanggalYMD}`).once('value'); 0001430503648
     const ref0 = database().ref('userBpjs').orderByChild('userBpjsNomorReferensi').equalTo(objUserUid).once('value')
     ref0.then((res0) => {
       if (res0.exists()) {
@@ -230,6 +230,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserUid: objUserUid,
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNoBpjs,
+              antrianUserBpjsNomorReferensi: objUserUid,
               antrianTanggalBooking9: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({
@@ -255,6 +256,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserUid: objUserUid,
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNoBpjs,
+              antrianUserBpjsNomorReferensi: objUserUid,
               antrianTanggalBooking2: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({

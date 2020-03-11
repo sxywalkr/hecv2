@@ -58,9 +58,20 @@ function Profile({ theme, navigation, route }: Props) {
   if (!user) {
     return null;
   }
-  // ++++++++++++++++++ ambil data pasien 
+  // ++++++++++++++++++ ambil data pasien  0001430503648
   useEffect(() => {
     // const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo(q.userTanggalBooking2);
+    // console.log(q)
+    // console.log(q)
+    database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
+    const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
+    delUserBpjs.once('value', (snap1) => {
+      // console.log('', snap1.val())
+      // console.log(Object.keys(snap1.val()))
+      if (snap1.exists()) {
+        database().ref(`userBpjs/${Object.keys(snap1.val())}`).remove();
+      }
+    })
     const ref = database().ref(`users/${q.antrianUserUid}`);
     ref.once('value', onSnapshot2);
     return () => { ref.off() }
@@ -75,8 +86,9 @@ function Profile({ theme, navigation, route }: Props) {
       ...snapshot.val(),
     });
     // });
-    // console.log(list)
     setItems(list);
+    // hapus pasien dari antrian
+    
     setLoading(false);
   }
   // function onSnapshot(snapshot) {
