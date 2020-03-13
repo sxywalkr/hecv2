@@ -85,6 +85,7 @@ function Profile({ theme, navigation, route }: Props) {
     // delete antrian 
     // console.log(q)
     if (q.antrianUserBpjsNomorReferensi) {
+      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking2}/detail/${q.antrianNomor}`).remove();
       database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
       const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
       delUserBpjs.once('value', (snap1) => {

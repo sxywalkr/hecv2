@@ -42,7 +42,8 @@ function ListBooking({ theme, route, navigation }: Props) {
     useEffect(() => {
         // const ref = database().ref(`users`).orderByChild('userTanggalBooking2').equalTo('2020-03-10');
         // console.log(q)
-        const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
+        // const ref = database().ref(`hecAntrian/indexes/${q}/detail`);
+        const ref = database().ref(`hecAntrian/indexes/2020-03-13/detail`);
         ref.on('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);

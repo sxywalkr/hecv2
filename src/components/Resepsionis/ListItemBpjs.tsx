@@ -97,11 +97,11 @@ function ListBookingBpjs({ theme, navigation }: Props) {
     axios.get('https://daengdeals.com/hec.php')
       .then(function (response) {
         setHeader(response.data.split(' '));
+        setLoading(false)
       })
       .catch(function (error) {
-        // console.log(error);
+        console.log(error);
       });
-    setLoading(false)
 
   }, [loading]);
 
@@ -133,11 +133,10 @@ function ListBookingBpjs({ theme, navigation }: Props) {
         } else {
           setAppMessage('Data tidak ditemukan')
         }
-
       })
-    // .catch(function (error) {
-    //   // console.log(error);
-    // });
+    .catch(function (error) {
+      console.log(error);
+    });
   };
 
   // const showDateTimePicker = () => {
@@ -257,7 +256,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNoBpjs,
               antrianUserBpjsNomorReferensi: objUserUid,
-              antrianTanggalBooking2: tanggalYMD,
+              antrianTanggalBooking9: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({
               userTanggalBooking9: tanggalYMD,

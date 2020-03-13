@@ -166,7 +166,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
               antrianUserNama: pasienNama,
               antrianUserNoBpjs: pasienNomorKtp,
               antrianUserBpjsNomorReferensi: objUserUid,
-              antrianTanggalBooking2: tanggalYMD,
+              antrianTanggalBooking9: tanggalYMD,
             })
             database().ref(`users/${objUserUid}`).update({
               userTanggalBooking9: tanggalYMD,
