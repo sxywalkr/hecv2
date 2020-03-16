@@ -91,7 +91,7 @@ function ListBooking({ theme, route, navigation }: Props) {
                         {/* <Button onPress={() => onResetBooking(item)}>Reset Booking</Button> */}
                     </View>
                 } />
-                : <Title>Tidak ada antrian booking</Title>}
+            : <Title>Tidak ada antrian booking tanggal {q}</Title>}
         </View>
     );
 }

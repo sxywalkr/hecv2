@@ -81,7 +81,7 @@ function ListBooking({ theme, route, navigation }: Props) {
             {items.length > 0 ?
                 <View>
                     <Title>Antrian Klinik Mata Hasanuddin</Title>
-                    <Subheading>Tanggal : {dayjs('2020-03-10').format('DD MMM YYYY')}</Subheading>
+                    <Subheading>Tanggal : {dayjs(q).format('DD MMM YYYY')}</Subheading>
                     <View style={styles.space10} />
                     <FlatList data={items} renderItem={({ item }) =>
                         <View style={styles.lists}>
@@ -94,7 +94,7 @@ function ListBooking({ theme, route, navigation }: Props) {
                         </View>
                     } />
                 </View>
-                : <Title>Tidak ada antrian booking</Title>}
+                : <Title>Tidak ada antrian booking tanggal {q}</Title>}
         </View>
     );
 }
