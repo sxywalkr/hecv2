@@ -75,8 +75,16 @@ function ListBooking({ theme, route, navigation }: Props) {
                             <Title>Nama Pasien : {item.antrianUserNama}</Title>
                             <Paragraph>Nomor antrian : {item.antrianNomor}</Paragraph>
                             <Paragraph>Nomor referensi : {item.antrianUserBpjsNomorReferensi}</Paragraph>
+                            {!!item.antrianStatus && <Paragraph>Sementara di periksa</Paragraph>}
                         </View>
-                        <Button onPress={() => navigation.navigate('DokterViewRekamMedik', { q: item })}>Proses</Button>
+                        <Button onPress={() => {
+                            database().ref(`hecAntrian/indexes/${q}/detail/${item.antrianNomor}`).update({
+                                antrianStatus: 'Sementara di periksa'
+                            });
+                            navigation.navigate('DokterViewRekamMedik', { q: item }
+                            )
+                        }
+                        }>Proses</Button>
                         {/* {console.log(item)} */}
                     </View>
                 } />

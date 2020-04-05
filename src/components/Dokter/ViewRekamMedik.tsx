@@ -36,6 +36,7 @@ interface Props {
 function Profile({ theme, navigation, route }: Props) {
   const { q } = route.params;
   const user = useContext(UserContext);
+  const [paramQ, setParamQ] = useState(false)
   const [loading, setLoading] = useState(true);
   const [loadingObat, setLoadingObat] = useState(true);
   const [loadingDiagnosa, setLoadingDiagnosa] = useState(true);
@@ -84,17 +85,11 @@ function Profile({ theme, navigation, route }: Props) {
   useEffect(() => {
     // delete antrian 
     // console.log(q)
-    if (q.antrianUserBpjsNomorReferensi) {
-      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking2}/detail/${q.antrianNomor}`).remove();
-      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
-      const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
-      delUserBpjs.once('value', (snap1) => {
-        if (snap1.exists()) {
-          database().ref(`userBpjs/${Object.keys(snap1.val())}`).remove();
-        }
+    // setParamQ(true)
+    database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`)
+      .update({
+        antrianLatest: q.antrianNomor
       })
-    }
-
     const ref = database().ref(`users/${q.antrianUserUid}`);
     ref.once('value', onSnapshot2);
     return () => { ref.off() }
@@ -109,6 +104,9 @@ function Profile({ theme, navigation, route }: Props) {
       ...snapshot.val(),
     });
     // });
+    // if (paramQ) {
+
+    // }
     setItems(list);
     // hapus pasien dari antrian
 
@@ -325,20 +323,29 @@ function Profile({ theme, navigation, route }: Props) {
         })
       }
     })
+    updateAntrian()
     navigation.navigate('AppHome')
   }
 
   // ++++++++++++++++++ proses ke oka
   const onSubmitRekamMedikKeOka = date => {
-    // console.log(items[0])
-    // console.log(itemsTindakanOp)
+    let nomorAntrianKamarOperasi = 0;
+    database().ref('hecKamarOperasi').orderByChild('hecKoTanggalOperasi').equalTo(dayjs(date).format('YYYY-MM-DD')).once('value', snap1 => {
+      if (snap1.exists()) {
+        nomorAntrianKamarOperasi = snap1.numChildren() + 1
+        console.log(snap1.numChildren())
+      } else {
+        nomorAntrianKamarOperasi = 1
+      }
+    })
     const a0 = dayjs(date).format('YYYY-MM-DD')
     const a = database().ref('hecKamarOperasi').push();
     database().ref('hecKamarOperasi').push({
       hecKoId: a.key,
       hecKoKodeBooking: items[0].userUid,
       hecKoTanggalOperasi: a0,
-      hecKoJenisTindakan: itemsTindakanOp[0].itemNamaTindakanOp,
+      hecKoNomorAntrian: nomorAntrianKamarOperasi,
+      hecKoJenisTindakan: JSON.stringify(itemsFilteredTindakanOp),
       hecKoKodePoli: 'MAT',
       hecKoNamaPoli: 'MATA',
       hecKoTerlaksana: 0,
@@ -381,6 +388,21 @@ function Profile({ theme, navigation, route }: Props) {
       }
     })
     navigation.navigate('AppHome')
+  }
+
+  const updateAntrian = () => {
+    if (q.antrianUserBpjsNomorReferensi) {
+      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking2}/detail/${q.antrianNomor}`).remove();
+      database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}/detail/${q.antrianNomor}`).remove();
+      const delUserBpjs = database().ref(`userBpjs`).orderByChild('userBpjsNomorReferensi').equalTo(q.antrianUserBpjsNomorReferensi)
+      delUserBpjs.once('value', (snap1) => {
+        if (snap1.exists()) {
+          database().ref(`userBpjs/${Object.keys(snap1.val())}`).remove();
+        }
+      })
+    }
+    setParamQ(false)
+
   }
 
   return (

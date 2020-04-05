@@ -67,7 +67,7 @@ function ListBooking({ theme, route, navigation }: Props) {
         <View style={styles.container} >
             {items.length > 0 ?
                 <View>
-                    <Title>Antrian Klinik Mata Hasanuddin</Title>
+                    <Title>Antrian Kamar Operasi Klinik Mata Hasanuddin</Title>
                     <Subheading>Tanggal : {dayjs(q).format('DD MMM YYYY')}</Subheading>
                     <View style={styles.space10} />
                     <FlatList data={items} renderItem={({ item }) =>
