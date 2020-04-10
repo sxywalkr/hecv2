@@ -40,7 +40,8 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`okaRoom`).orderByChild('okaTanggal2').equalTo(q);
+        // console.log(q)
+        const ref = database().ref(`hecKamarOperasi`).orderByChild('hecKoTanggalOperasi').equalTo(q);
         ref.on('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -79,8 +80,8 @@ function ListBooking({ theme, route, navigation }: Props) {
                 <FlatList data={items} renderItem={({ item }) =>
                     <View style={styles.lists}>
                         <View>
-                            <Title>{item.okaNamaPasien}</Title>
-                            <Caption>{item.okaFlag}</Caption>
+                            <Title>{item.hecKoUserName}</Title>
+                            <Paragraph>{item.hecKoJenisTindakan}</Paragraph>
                             <View style={styles.spaceV10} />
                             {/* <Subheading>Obat</Subheading> */}
                             {/* <Caption>Total Harga Obat : {JSON.parse(item.okaObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption> */}

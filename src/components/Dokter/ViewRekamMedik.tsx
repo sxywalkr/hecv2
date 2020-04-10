@@ -61,6 +61,7 @@ function Profile({ theme, navigation, route }: Props) {
   const [itemsFilteredDiagnosa, setItemsFilteredDiagnosa] = useState([]);
   const [itemsFilteredTindakanNonOp, setItemsFilteredTindakanNonOp] = useState([]);
   const [itemsFilteredTindakanOp, setItemsFilteredTindakanOp] = useState([]);
+  const [itemsFilteredTindakanOp2, setItemsFilteredTindakanOp2] = useState([]);
   const [itemsFilteredKacamata, setItemsFilteredKacamata] = useState([]);
 
   const [itemsTindakan, setItemsTindakan] = useState([]);
@@ -77,6 +78,8 @@ function Profile({ theme, navigation, route }: Props) {
   const [selectedItemsTindakanOp, setSelectedItemsTindakanOp] = useState([]);
   const [bookingDateOka, setBookingDateOka] = useState();
   const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
+  const [loadingCekAntrianOK, setLoadingCekAntrianOK] = useState(true)
+  const [nomorAntrianOk, setNomorAntrianOk] = useState(99999)
 
   if (!user) {
     return null;
@@ -327,25 +330,35 @@ function Profile({ theme, navigation, route }: Props) {
     navigation.navigate('AppHome')
   }
 
-  // ++++++++++++++++++ proses ke oka
-  const onSubmitRekamMedikKeOka = date => {
-    let nomorAntrianKamarOperasi = 0;
+  // ++++++++++++++++++ cek antrian oka
+  const cekAntrianOka = date => {
     database().ref('hecKamarOperasi').orderByChild('hecKoTanggalOperasi').equalTo(dayjs(date).format('YYYY-MM-DD')).once('value', snap1 => {
       if (snap1.exists()) {
-        nomorAntrianKamarOperasi = snap1.numChildren() + 1
-        console.log(snap1.numChildren())
+        onSubmitRekamMedikKeOka(snap1.numChildren() + 1, date)
       } else {
-        nomorAntrianKamarOperasi = 1
+        onSubmitRekamMedikKeOka(1, date)
       }
     })
-    const a0 = dayjs(date).format('YYYY-MM-DD')
+
+  }
+
+  // ++++++++++++++++++ proses ke oka
+  const onSubmitRekamMedikKeOka = (p, q) => {
+    // console.log(itemsFilteredTindakanOp)
+    const aa = []
+    itemsFilteredTindakanOp.forEach((el) => {
+      aa.push(el.itemNamaTindakanOp)
+    })
+    // console.log(aa)
+    const a0 = dayjs(q).format('YYYY-MM-DD')
     const a = database().ref('hecKamarOperasi').push();
     database().ref('hecKamarOperasi').push({
       hecKoId: a.key,
       hecKoKodeBooking: items[0].userUid,
       hecKoTanggalOperasi: a0,
-      hecKoNomorAntrian: nomorAntrianKamarOperasi,
-      hecKoJenisTindakan: JSON.stringify(itemsFilteredTindakanOp),
+      hecKoNomorAntrian: p,
+      hecKoJenisTindakan: aa.join(', '),
+      hecKoJenisTindakanDetail: JSON.stringify(itemsFilteredTindakanOp),
       hecKoKodePoli: 'MAT',
       hecKoNamaPoli: 'MATA',
       hecKoTerlaksana: 0,
@@ -387,7 +400,9 @@ function Profile({ theme, navigation, route }: Props) {
         })
       }
     })
+    updateAntrian()
     navigation.navigate('AppHome')
+
   }
 
   const updateAntrian = () => {
@@ -432,7 +447,7 @@ function Profile({ theme, navigation, route }: Props) {
       <View>
         <DateTimePicker
           isVisible={isDateTimePickerVisible}
-          onConfirm={onSubmitRekamMedikKeOka}
+          onConfirm={cekAntrianOka}
           onCancel={hideDateTimePicker}
         />
       </View>
