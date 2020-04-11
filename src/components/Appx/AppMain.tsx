@@ -152,12 +152,12 @@ function AppMain({ theme, navigation }: Props) {
           {userRole === 'Oka' &&
             <View style={styles.content}>
               <Title>List Antri Oka:</Title>
-              {/* <Paragraph>
-                Menampilkan list user aplikasi.
-              </Paragraph> */}
+              <Paragraph>
+                Menampilkan list antri oka
+              </Paragraph>
               <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('OkaListBookingByDay', { q: dayjs().add(0, 'day').format("YYYY-MM-DD") })}>Lihat</Button>
-              {/* <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('OkaListBooking')}>Lihat</Button> */}
             </View>
+            
           }
         </View>
         
