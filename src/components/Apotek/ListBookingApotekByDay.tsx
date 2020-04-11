@@ -30,6 +30,7 @@ interface Props {
 
 function ListBooking({ theme, route, navigation }: Props) {
     const { q } = route.params;
+    // console.log(q)
     const user = useContext(UserContext);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
@@ -83,8 +84,8 @@ function ListBooking({ theme, route, navigation }: Props) {
                             <Caption>{item.rekamMedikFlag}</Caption>
                             <View style={styles.spaceV10} />
                             <Subheading>Obat</Subheading>
-                            <Caption>Total Harga Obat : {JSON.parse(item.rekamMedikObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
-                            {JSON.parse(item.rekamMedikObat).map((el, key) =>
+                            <Caption>Total Harga Obat : {JSON.parse(item.rekamMedikMedikaMentosa).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
+                            {JSON.parse(item.rekamMedikMedikaMentosa).map((el, key) =>
                                 <View key={key}>
                                     <Subheading>Nama Obat: {el.itemNamaObat}</Subheading>
                                     <Caption>Jumlah Obat: {el.selectedJumlahObat}</Caption>

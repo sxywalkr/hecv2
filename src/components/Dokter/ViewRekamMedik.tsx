@@ -300,9 +300,9 @@ function Profile({ theme, navigation, route }: Props) {
       rekamMedikTanggal: dayjs().format(),
       rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
       rekamMedikBulan: dayjs().month() + 1,
-      rekamMedikIdPasien: q.key,
-      rekamMedikNamaPasien: q.userName,
-      rekamMedikStatusPasien: q.userStatusPasien,
+      rekamMedikIdPasien: items[0].userUid,
+      rekamMedikNamaPasien: items[0].userName,
+      rekamMedikStatusPasien: items[0].userStatusPasien,
       rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
       rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
       rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
@@ -354,7 +354,7 @@ function Profile({ theme, navigation, route }: Props) {
     const a = database().ref('hecKamarOperasi').push();
     database().ref('hecKamarOperasi').push({
       hecKoId: a.key,
-      hecKoKodeBooking: items[0].userUid,
+      hecKoKodeBooking: items.userUid,
       hecKoTanggalOperasi: a0,
       hecKoNomorAntrian: p,
       hecKoJenisTindakan: aa.join(', '),
@@ -368,24 +368,24 @@ function Profile({ theme, navigation, route }: Props) {
       hecKoNamaDokter: user.displayName ? user.displayName : user.email,
       hecKoIdDokter: user.uid
     })
-    database().ref('rekamMedikPasien/' + a.key).update({
-      rekamMedikId: a.key,
-      rekamMedikTanggal: dayjs().format(),
-      rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
-      rekamMedikBulan: dayjs().month() + 1,
-      rekamMedikIdPasien: q.key,
-      rekamMedikNamaPasien: q.userName,
-      rekamMedikStatusPasien: q.userStatusPasien,
-      rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
-      rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
-      rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
-      rekamMedikOperasi: JSON.stringify(itemsFilteredTindakanOp),
-      rekamMedikKacamata: JSON.stringify(itemsFilteredKacamata),
-      rekamMedikIdDokter: user.uid,
-      rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
-      rekamMedikKeOka: true,
-      rekamMedikFlag: 'Poli OK, Oka Nok, Apotek NOK, Billing NOK',
-    });
+    // database().ref('rekamMedikPasien/' + a.key).update({
+    //   rekamMedikId: a.key,
+    //   rekamMedikTanggal: dayjs().format(),
+    //   rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
+    //   rekamMedikBulan: dayjs().month() + 1,
+    //   rekamMedikIdPasien: items[0].userUid,
+    //   rekamMedikNamaPasien: items[0].userName,
+    //   rekamMedikStatusPasien: items[0].userStatusPasien,
+    //   rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
+    //   rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
+    //   rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
+    //   rekamMedikOperasi: JSON.stringify(itemsFilteredTindakanOp),
+    //   rekamMedikKacamata: JSON.stringify(itemsFilteredKacamata),
+    //   rekamMedikIdDokter: user.uid,
+    //   rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
+    //   rekamMedikKeOka: true,
+    //   rekamMedikFlag: 'Poli OK, Oka Nok, Apotek NOK, Billing NOK',
+    // });
     database().ref('users/' + q.key).update({
       userFlagActivity: 'Antri Oka',
       userTanggalBooking: '',
@@ -394,7 +394,6 @@ function Profile({ theme, navigation, route }: Props) {
     const addAntrianTerlayani = database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`);
     addAntrianTerlayani.once('value', (snap2) => {
       if (snap2.exists()) {
-        // const terlayani = snap2.val().antrianTerlayani
         database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`).update({
           antrianTerlayani: snap2.val().antrianTerlayani ? snap2.val().antrianTerlayani + 1 : 1
         })
@@ -424,6 +423,8 @@ function Profile({ theme, navigation, route }: Props) {
     <View style={styles.container}>
       <View style={styles.content}>
         {!!items[0] && <Title>{items[0].userName}</Title>}
+        {!!items[0] && <Paragraph>{items[0].userStatusPasien}</Paragraph>}
+        {!!items[0] && <Paragraph>{items[0].userNoBpjs}</Paragraph>}
         {/* {console.log(items)} */}
         <View style={{ flexDirection: 'row' }}>
           <Button style={{ flex: 1 }} mode='outlined'

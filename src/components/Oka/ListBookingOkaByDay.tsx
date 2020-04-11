@@ -50,7 +50,7 @@ function ListBooking({ theme, route, navigation }: Props) {
         const list = [];
         snapshot.forEach(item => {
             list.push({
-                key: item.val().okaId,
+                key: item.val().hecKoId,
                 ...item.val(),
             });
         });
@@ -81,7 +81,8 @@ function ListBooking({ theme, route, navigation }: Props) {
                     <View style={styles.lists}>
                         <View>
                             <Title>{item.hecKoUserName}</Title>
-                            <Paragraph>{item.hecKoJenisTindakan}</Paragraph>
+                            <Paragraph>Nomor BPJS : {item.hecKoUserNoBpjs}</Paragraph>
+                            <Paragraph>Jenis Tindakan : {item.hecKoJenisTindakan}</Paragraph>
                             <View style={styles.spaceV10} />
                             {/* <Subheading>Obat</Subheading> */}
                             {/* <Caption>Total Harga Obat : {JSON.parse(item.okaObat).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption> */}

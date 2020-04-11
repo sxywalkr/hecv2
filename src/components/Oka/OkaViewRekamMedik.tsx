@@ -16,6 +16,7 @@ import {
   withTheme,
   IconButton,
   Colors,
+  List,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
@@ -23,6 +24,8 @@ import { NavigationParams, NavigationRoute } from 'react-navigation';
 import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
+import DateTimePicker from "react-native-modal-datetime-picker";
+
 
 interface Props {
   theme: Theme;
@@ -32,52 +35,77 @@ interface Props {
 
 function Profile({ theme, navigation, route }: Props) {
   const { q } = route.params;
-  // console.log(q)
   const user = useContext(UserContext);
+  const [paramQ, setParamQ] = useState(false)
   const [loading, setLoading] = useState(true);
   const [loadingObat, setLoadingObat] = useState(true);
   const [loadingDiagnosa, setLoadingDiagnosa] = useState(true);
+  const [loadingTindakanNonOp, setLoadingTindakanNonOp] = useState(true);
+  const [loadingTindakanOp, setLoadingTindakanOp] = useState(true);
+  const [loadingKacamata, setLoadingKacamata] = useState(true);
+
   const [loadingSelectedObat, setLoadingSelectedObat] = useState(true);
   const [loadingSelectedDiagnosa, setLoadingSelectedDiagnosa] = useState(true);
+  const [loadingSelectedTindakanNonOp, setLoadingSelectedTindakanNonOp] = useState(true);
+  const [loadingSelectedTindakanOp, setLoadingSelectedTindakanOp] = useState(true);
+  const [loadingSelectedKacamata, setLoadingSelectedKacamata] = useState(true);
+
   const [items, setItems] = useState([]);
   const [itemsObat, setItemsObat] = useState([]);
   const [itemsDiagnosa, setItemsDiagnosa] = useState([]);
+  const [itemsTindakanNonOp, setItemsTindakanNonOp] = useState([]);
+  const [itemsTindakanOp, setItemsTindakanOp] = useState([]);
+  const [itemsKacamata, setItemsKacamata] = useState([]);
+
   const [itemsFilteredObat, setItemsFilteredObat] = useState([]);
   const [itemsFilteredDiagnosa, setItemsFilteredDiagnosa] = useState([]);
+  const [itemsFilteredTindakanNonOp, setItemsFilteredTindakanNonOp] = useState([]);
+  const [itemsFilteredTindakanOp, setItemsFilteredTindakanOp] = useState([]);
+  const [itemsFilteredTindakanOp2, setItemsFilteredTindakanOp2] = useState([]);
+  const [itemsFilteredKacamata, setItemsFilteredKacamata] = useState([]);
+
   const [itemsTindakan, setItemsTindakan] = useState([]);
   const [openFab, setOpenFab] = useState(false);
   const [openDiagObat, setOpenDiagObat] = useState(false);
   const [openDiagTindakan, setOpenDiagTindakan] = useState(false);
+  const [openDiagTindakanNonOp, setOpenDiagTindakanNonOp] = useState(false);
+  const [openDiagTindakanOp, setOpenDiagTindakanOp] = useState(false);
+  const [openDiagKacamata, setOpenDiagKacamata] = useState(false);
+
   const [selectedItemsObat, setSelectedItemsObat] = useState([]);
   const [selectedItemsTindakan, setSelectedItemsTindakan] = useState([]);
+  const [selectedItemsTindakanNonOp, setSelectedItemsTindakanNonOp] = useState([]);
+  const [selectedItemsTindakanOp, setSelectedItemsTindakanOp] = useState([]);
+  const [bookingDateOka, setBookingDateOka] = useState();
+  const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
+  const [loadingCekAntrianOK, setLoadingCekAntrianOK] = useState(true)
+  const [nomorAntrianOk, setNomorAntrianOk] = useState(99999)
 
   if (!user) {
     return null;
   }
-  // ++++++++++++++++++ ambil data pasien 
+  // ++++++++++++++++++ ambil data pasien
   useEffect(() => {
-    const ref = database().ref(`users`).orderByChild('userUid').equalTo(q.okaIdPasien);
-    ref.on('value', onSnapshot);
+    // console.log(q)
+    const ref = database().ref(`users/${q.hecKoUserUid}`);
+    ref.once('value', onSnapshot2);
     return () => { ref.off() }
   }, [items]);
 
-  function onSnapshot(snapshot) {
+  function onSnapshot2(snapshot) {
+    // console.log(snapshot.val())
     const list = [];
-    snapshot.forEach(item => {
-      list.push({
-        key: item.val().userUid,
-        ...item.val(),
-      });
+    list.push({
+      key: snapshot.val().hecKoId,
+      ...snapshot.val(),
     });
-    // console.log(list)
     setItems(list);
     setLoading(false);
   }
-
   // ++++++++++++++++++ ambil data obat 
   useEffect(() => {
     const ref = database().ref(`obat`)
-    ref.on('value', onSnapshotObat);
+    ref.once('value', onSnapshotObat);
     return () => { ref.off() }
   }, [loadingObat]);
 
@@ -97,7 +125,7 @@ function Profile({ theme, navigation, route }: Props) {
   // ++++++++++++++++++ ambil data diagnosa
   useEffect(() => {
     const ref = database().ref(`diagnosa`)
-    ref.on('value', onSnapshotDiagnosa);
+    ref.once('value', onSnapshotDiagnosa);
     return () => { ref.off() }
   }, [loadingDiagnosa]);
 
@@ -112,6 +140,63 @@ function Profile({ theme, navigation, route }: Props) {
     });
     setItemsDiagnosa(list);
     setLoadingDiagnosa(false);
+  }
+  // ++++++++++++++++++ ambil data tindakan non op
+  useEffect(() => {
+    const ref = database().ref(`hecRefTindakanNonOp`)
+    ref.once('value', onSnapshotTindakanNonOp);
+    return () => { ref.off() }
+  }, [loadingTindakanNonOp]);
+
+  function onSnapshotTindakanNonOp(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdTindakanNonOp,
+        selectedTindakanNonOp: false,
+        ...item.val(),
+      });
+    });
+    setItemsTindakanNonOp(list);
+    setLoadingTindakanNonOp(false);
+  }
+  // ++++++++++++++++++ ambil data tindakan  op
+  useEffect(() => {
+    const ref = database().ref(`hecRefTindakanOp`)
+    ref.once('value', onSnapshotTindakanOp);
+    return () => { ref.off() }
+  }, [loadingTindakanOp]);
+
+  function onSnapshotTindakanOp(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdTindakanOp,
+        selectedTindakanOp: false,
+        ...item.val(),
+      });
+    });
+    setItemsTindakanOp(list);
+    setLoadingTindakanOp(false);
+  }
+  // ++++++++++++++++++ ambil data kacamata
+  useEffect(() => {
+    const ref = database().ref(`hecRefKacamata`)
+    ref.once('value', onSnapshotKacamata);
+    return () => { ref.off() }
+  }, [loadingKacamata]);
+
+  function onSnapshotKacamata(snapshot) {
+    const list = [];
+    snapshot.forEach(item => {
+      list.push({
+        key: item.val().itemIdKacamata,
+        selectedKacamata: false,
+        ...item.val(),
+      });
+    });
+    setItemsKacamata(list);
+    setLoadingKacamata(false);
   }
   // ++++++++++++++++++ proses filter obat
   useEffect(() => {
@@ -134,42 +219,111 @@ function Profile({ theme, navigation, route }: Props) {
 
   const onSelectDiagnosa = (q) => {
     itemsDiagnosa[q].selectedDiagnosa = !itemsDiagnosa[q].selectedDiagnosa
-    // console.log(dayjs().month()+1)
     setLoadingSelectedDiagnosa(true)
   }
-  // ++++++++++++++++++ proses filter diagnosa
-  const onSubmitOka = () => {
-    database().ref('okaRoom/' + q.okaId).update({
-      // okaId: a.key,
-      // okaTanggal: dayjs().format(),
-      // okaTanggal2: dayjs().format("YYYY-MM-DD"),
-      // okaBulan: dayjs().month()+1,
-      // okaIdPasien: q.key,
-      // okaNamaPasien: q.userName,
-      // okaStatusPasien: q.userStatusPasien,
-      okaObat: JSON.stringify(itemsFilteredObat),
-      okaDiagnosa: JSON.stringify(itemsFilteredDiagnosa),
-      okaIdDokter: user.uid,
-      okaNamaDokter: user.displayName ? user.displayName : user.email,
-      okaFlag: 'Poli OK, Oka OK, Apotek NOK, Billing NOK',
-    });
-    database().ref('rekamMedikPasien/' + q.key).update({
+  // ++++++++++++++++++ proses filter tindakan non operasi
+  useEffect(() => {
+    const filteredTindakanNonOp = itemsTindakanNonOp.filter((el) => el.selectedTindakanNonOp === true)
+    setItemsFilteredTindakanNonOp(filteredTindakanNonOp)
+    setLoadingSelectedTindakanNonOp(false)
+  }, [loadingSelectedTindakanNonOp])
+
+  const onSelectTindakanNonOp = (q) => {
+    itemsTindakanNonOp[q].selectedTindakanNonOp = !itemsTindakanNonOp[q].selectedTindakanNonOp
+    setLoadingSelectedTindakanNonOp(true)
+  }
+  // ++++++++++++++++++ proses filter tindakan  operasi
+  useEffect(() => {
+    const filteredTindakanOp = itemsTindakanOp.filter((el) => el.selectedTindakanOp === true)
+    setItemsFilteredTindakanOp(filteredTindakanOp)
+    setLoadingSelectedTindakanOp(false)
+  }, [loadingSelectedTindakanOp])
+
+  const onSelectTindakanOp = (q) => {
+    itemsTindakanOp[q].selectedTindakanOp = !itemsTindakanOp[q].selectedTindakanOp
+    // console.log(dayjs().month()+1)
+    setLoadingSelectedTindakanOp(true)
+  }
+  // ++++++++++++++++++ proses filter kacamata
+  useEffect(() => {
+    const filteredKacamata = itemsKacamata.filter((el) => el.selectedKacamata === true)
+    setItemsFilteredKacamata(filteredKacamata)
+    setLoadingSelectedKacamata(false)
+  }, [loadingSelectedKacamata])
+
+  const onSelectKacamata = (q) => {
+    itemsKacamata[q].selectedKacamata = !itemsKacamata[q].selectedKacamata
+    // console.log(dayjs().month()+1)
+    setLoadingSelectedKacamata(true)
+  }
+  
+  // ++++++++++++++++++ proses ke apotek
+  const onSubmitRekamMedik = () => {
+    // console.log(items)
+    const a = database().ref('rekamMedikPasien').push();
+    database().ref('rekamMedikPasien/' + a.key).update({
+      rekamMedikId: a.key,
+      rekamMedikTanggal: dayjs().format(),
       rekamMedikTanggal2: dayjs().format("YYYY-MM-DD"),
-    })
+      rekamMedikBulan: dayjs().month() + 1,
+      rekamMedikIdPasien: items[0].userUid,
+      rekamMedikNamaPasien: items[0].userName,
+      rekamMedikStatusPasien: items[0].userStatusPasien,
+      rekamMedikMedikaMentosa: JSON.stringify(itemsFilteredObat),
+      rekamMedikDiagnosis: JSON.stringify(itemsFilteredDiagnosa),
+      rekamMedikPemeriksaan: JSON.stringify(itemsFilteredTindakanNonOp),
+      rekamMedikOperasi: items[0].hecKoJenisTindakan,
+      rekamMedikOperasiDetail: JSON.stringify(items[0].hecKoJenisTindakanDetail),
+      rekamMedikKacamata: JSON.stringify(itemsFilteredKacamata),
+      rekamMedikIdDokter: user.uid,
+      rekamMedikNamaDokter: user.displayName ? user.displayName : user.email,
+      rekamMedikKeOka: false,
+      rekamMedikFlag: 'Poli OK, Apotek NOK, Billing NOK',
+    });
     database().ref('users/' + q.key).update({
       userFlagActivity: 'Antri Apotek',
+      userTanggalBooking: '',
+      userTanggalBooking2: '',
     })
+    const addAntrianTerlayani = database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`);
+    addAntrianTerlayani.once('value', (snap2) => {
+      if (snap2.exists()) {
+        // const terlayani = snap2.val().antrianTerlayani
+        database().ref(`hecAntrian/indexes/${q.antrianTanggalBooking9}`).update({
+          antrianTerlayani: snap2.val().antrianTerlayani ? snap2.val().antrianTerlayani + 1 : 1
+        })
+      }
+    })
+    updateAntrian()
     navigation.navigate('AppHome')
+  }
+
+  const updateAntrian = () => {
+    const delUserOka = database().ref(`hecKamarOperasi`).orderByChild('hecKoUserUid').equalTo(q.hecKoUserUid)
+    delUserOka.once('value', (snap1) => {
+      if (snap1.exists()) {
+        database().ref(`hecKamarOperasi/${Object.keys(snap1.val())}`).update({
+          hecKoTerlaksana: 1,
+        });
+      }
+    })
+    setParamQ(false)
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Title>{items.map((el) => el.userName)}</Title>
-        <Button mode='contained' disabled={(itemsFilteredObat.length > 0 && itemsFilteredDiagnosa.length > 0) ? false : true} 
-          onPress={() => onSubmitOka() } >
-          Submit
-        </Button>
+        {!!items[0] && <Title>{items[0].userName}</Title>}
+        {!!items[0] && <Paragraph>{items[0].userStatusPasien}</Paragraph>}
+        {!!items[0] && <Paragraph>{items[0].userNoBpjs}</Paragraph>}
+        {/* {console.log(items)} */}
+        <View style={{ flexDirection: 'row' }}>
+          <Button style={{ flex: 1 }} mode='outlined'
+            disabled={(itemsFilteredObat.length > 0) ? false : true}
+            onPress={() => onSubmitRekamMedik()} >
+            Ke Apotek
+          </Button>
+        </View>
         <View style={styles.spaceV10} />
       </View>
       <View style={styles.spaceV10} />
@@ -188,15 +342,15 @@ function Profile({ theme, navigation, route }: Props) {
                 <IconButton icon={item.selectedObat ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
                   onPress={() => onSelectObat(index)} />
                 <View>
-                  <Title>{item.itemNamaObat}</Title>
-                  <Paragraph>{item.itemHargaJualObat}</Paragraph>
+                  <Subheading>{item.itemNamaObat}</Subheading>
+                  <Caption>{item.itemHargaJualObat}</Caption>
                 </View>
               </View>
             </View>
           } />
         </View>
       }
-      <View style={styles.spaceV10} />
+      {/* <View style={styles.spaceV10} /> */}
       {!!openDiagTindakan &&
         <View style={styles.content}>
           <View style={styles.contentRowIconRight}>
@@ -204,7 +358,7 @@ function Profile({ theme, navigation, route }: Props) {
             <IconButton icon="refresh" color={Colors.grey800} size={20}
               onPress={() => setLoadingDiagnosa(true)} />
             <IconButton icon="close" color={Colors.red500} size={20}
-              onPress={() => setOpenDiagDiagnosa(!openDiagDiagnosa)} />
+              onPress={() => setOpenDiagTindakan(!openDiagTindakan)} />
           </View>
           <FlatList data={itemsDiagnosa} renderItem={({ item, index }) =>
             <View style={styles.lists}>
@@ -212,12 +366,40 @@ function Profile({ theme, navigation, route }: Props) {
                 <IconButton icon={item.selectedDiagnosa ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
                   onPress={() => onSelectDiagnosa(index)} />
                 <View>
-                  <Title>{item.itemNamaDiagnosa}</Title>
-                  <Paragraph>{item.itemHargaJualDiagnosa}</Paragraph>
+                  <Subheading>{item.itemNamaDiagnosa}</Subheading>
+                  <Caption>{item.itemHargaJualDiagnosa}</Caption>
                 </View>
               </View>
+              <View style={styles.spaceV10} />
             </View>
           } />
+          <View style={styles.spaceV10} />
+        </View>
+      }
+      {/* <View style={styles.spaceV10} /> */}
+      {!!openDiagTindakanNonOp &&
+        <View style={styles.content}>
+          <View style={styles.contentRowIconRight}>
+            <Title>Tindakan Non Operasi</Title>
+            <IconButton icon="refresh" color={Colors.grey800} size={20}
+              onPress={() => setLoadingTindakanNonOp(true)} />
+            <IconButton icon="close" color={Colors.red500} size={20}
+              onPress={() => setOpenDiagTindakanNonOp(!openDiagTindakanNonOp)} />
+          </View>
+          <FlatList data={itemsTindakanNonOp} renderItem={({ item, index }) =>
+            <View style={styles.lists}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton icon={item.selectedTindakanNonOp ? "check-box" : "check-box-outline-blank"} color={Colors.grey800} size={20}
+                  onPress={() => onSelectTindakanNonOp(index)} />
+                <View>
+                  <Subheading>{item.itemNamaTindakanNonOp}</Subheading>
+                  <Caption>{item.itemHargaJualTindakanNonOp}</Caption>
+                </View>
+              </View>
+              <View style={styles.spaceV10} />
+            </View>
+          } />
+          <View style={styles.spaceV10} />
         </View>
       }
       <Provider>
@@ -227,8 +409,10 @@ function Profile({ theme, navigation, route }: Props) {
             icon={openFab ? 'settings' : 'add'}
             // icon="settings"
             actions={[
-              { icon: 'star', label: 'Tambah Diagnose Obat', onPress: () => setOpenDiagObat(!openDiagObat) },
-              { icon: 'email', label: 'Tambah Diagnosa Tindakan', onPress: () => setOpenDiagTindakan(!openDiagTindakan) },
+              { icon: 'star', label: 'Pemeriksaan', onPress: () => setOpenDiagTindakanNonOp(!openDiagTindakanNonOp) },
+              { icon: 'star', label: 'Diagnosis', onPress: () => setOpenDiagTindakan(!openDiagTindakan) },
+              { icon: 'star', label: 'Terapi - Medikamentosa', onPress: () => setOpenDiagObat(!openDiagObat) },
+              { icon: 'star', label: 'Terapi - Kacamata', onPress: () => setOpenDiagTindakanOp(!openDiagTindakanOp) },
             ]}
             onStateChange={({ open }) => setOpenFab(open)}
             onPress={() => {
@@ -250,7 +434,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     backgroundColor: '#F6F7F8',
     elevation: 4,
     // marginBottom: 10,
@@ -259,6 +443,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingLeft: 20,
   },
   profile: {
     marginTop: -50,
@@ -289,7 +474,15 @@ const styles = StyleSheet.create({
   },
   spaceV10: {
     margin: 6,
-  }
+  },
+  lists: {
+    backgroundColor: '#F6F7F8',
+    // elevation: 4,
+    flexDirection: 'column',
+    // justifyContent: 'space-evenly',
+    // marginVertical: 4,
+    // paddingHorizontal: 3,
+  },
 });
 
 export default withTheme(Profile);
