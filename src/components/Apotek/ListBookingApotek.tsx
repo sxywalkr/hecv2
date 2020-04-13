@@ -21,6 +21,7 @@ import { NavigationParams } from 'react-navigation';
 import { UserContext } from '../../App';
 import Hero from '../Hero';
 import { getProviders } from '../../util/helpers';
+import ListBookingApotekCountByDay from './ListBookingApotekCountByDay'
 
 interface Props {
   theme: Theme;
@@ -68,6 +69,7 @@ function ListBooking({ theme, navigation }: Props) {
         <View style={styles.lists} key={i}>
           <View>
             <Title>{dayjs().add(i, 'day').format("YYYY-MM-DD")}</Title>
+            <ListBookingApotekCountByDay datex={dayjs().add(i, 'day').format("YYYY-MM-DD")} />
           </View>
           <Button onPress={() => navigation.navigate('ApotekListBookingByDay', { q: dayjs().add(i, 'day').format("YYYY-MM-DD") })}>Detail</Button>
         </View>

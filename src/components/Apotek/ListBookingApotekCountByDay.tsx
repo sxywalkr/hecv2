@@ -24,13 +24,13 @@ import { getProviders } from '../../util/helpers';
 
 interface Props {
     theme: Theme;
-    navigation: NavigationParams;
-    route: NavigationRoute;
+    // navigation: NavigationParams;
+    // route: NavigationRoute;
+    datex: string;
 }
 
-function ListBooking({ theme, route, navigation }: Props) {
-    const { q } = route.params;
-    // console.log(q)
+function ListBooking({ theme, datex }: Props) {
+    // const { q } = route.params;
     const user = useContext(UserContext);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
@@ -41,7 +41,7 @@ function ListBooking({ theme, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        const ref = database().ref(`rekamMedikPasien`).orderByChild('rekamMedikTanggal2').equalTo(q);
+        const ref = database().ref(`rekamMedikPasien`).orderByChild('rekamMedikTanggal2').equalTo(datex);
         ref.once('value', onSnapshot);
         return () => { ref.off() }
     }, [items]);
@@ -50,27 +50,17 @@ function ListBooking({ theme, route, navigation }: Props) {
         // console.log(snapshot.val())
         const list = [];
         snapshot.forEach(item => {
-            if (item.val().rekamMedikFlag === 'Poli OK, Apotek NOK, Billing NOK') {
-                list.push({
-                    key: item.val().rekamMedikId,
-                    ...item.val(),
-                });
+            if (item.val()) {
+                // console.log('item', item.val())
+                if (item.val().rekamMedikFlag === 'Poli OK, Apotek NOK, Billing NOK') {
+                    list.push({
+                        key: item.val(),
+                    });
+                }
             }
         });
         setItems(list);
         setLoading(false);
-    }
-
-    function onProsesApotek(p) {
-        database().ref(`rekamMedikPasien/${p.rekamMedikId}`)
-            .update({
-                rekamMedikFlag: 'Poli OK, Apotek OK, Billing NOK',
-            })
-        database().ref(`users/${p.rekamMedikIdPasien}`)
-            .update({
-                userFlagActivity: 'Antri Billing',
-            })
-        navigation.navigate('AppHome')
     }
 
     if (loading) {
@@ -80,28 +70,8 @@ function ListBooking({ theme, route, navigation }: Props) {
     return (
         <View style={styles.container} >
             {items.length > 0 ?
-                <FlatList data={items} renderItem={({ item }) =>
-                    <View style={styles.lists}>
-                        <View>
-                            <Title>{item.rekamMedikNamaPasien}</Title>
-                            <Caption>{item.rekamMedikFlag}</Caption>
-                            <View style={styles.spaceV10} />
-                            <Subheading>Obat</Subheading>
-                            <Caption>Total Harga Obat : {JSON.parse(item.rekamMedikMedikaMentosa).map(el => el.itemHargaJualObat).reduce((a, b) => parseInt(a) + parseInt(b), 0)}</Caption>
-                            {JSON.parse(item.rekamMedikMedikaMentosa).map((el, key) =>
-                                <View key={key}>
-                                    <Subheading>Nama Obat: {el.itemNamaObat}</Subheading>
-                                    <Caption>Jumlah Obat: {el.selectedJumlahObat}</Caption>
-                                    <Caption>Harga Obat: {el.itemHargaJualObat}</Caption>
-                                </View>
-                            )}
-
-                        </View>
-                        <Button disabled={item.rekamMedikFlag === 'Poli OK, Apotek NOK, Billing NOK' ? false : true}
-                            onPress={() => onProsesApotek(item)}>Proses</Button>
-                    </View>
-                } />
-                : <Title>Tidak ada pasien</Title>}
+                <Subheading>Jumlah antrian: {items.length}</Subheading>
+                : <Subheading>Tidak ada antrian</Subheading>}
         </View>
     );
 }
@@ -154,9 +124,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
-    spaceV10: {
-        margin: 6,
-    }
 });
 
 export default withTheme(ListBooking);
