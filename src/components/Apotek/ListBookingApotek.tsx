@@ -32,32 +32,10 @@ function ListBooking({ theme, navigation }: Props) {
   const user = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
-  // const [userRole, setUserRole] = useState('')
-
+  
   if (!user) {
     return null;
   }
-
-  // useEffect(() => {
-  //   // Create reference
-  //   const ref = database().ref(`users`).orderByChild('userFlagActivity').equalTo('Antri Apotek');
-  //   ref.on('value', onSnapshot);
-  //   return () => { ref.off() }
-  // }, [items]);
-
-  // function onSnapshot(snapshot) {
-  //   const list = [];
-  //   snapshot.forEach(item => {
-  //     // console.log(item.val().userTanggalBooking2)
-  //     list.push({
-  //       key: item.val().userUid,
-  //       ...item.val(),
-  //     });
-  //   });
-  //   setItems(list);
-  //   setLoading(false);
-  // }
-
 
   function renderFields() {
     const noGuest = 7;
@@ -85,16 +63,6 @@ function ListBooking({ theme, navigation }: Props) {
   return (
     <View style={styles.container} >
       {renderFields()}
-
-      {/* <FlatList data={items} renderItem={({ item }) =>
-        <View style={styles.lists}>
-          <View>
-            <Title>{item.userName}</Title>
-            <Paragraph>{item.userTanggalBooking2}</Paragraph>
-          </View>
-          <Button onPress={()=>onResetBooking(item)}>Reset Booking</Button>
-        </View>
-      } /> */}
     </View>
   );
 }
