@@ -52,7 +52,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
   const [pasienNomorAntrian, setPasienNomorAntrian] = useState()
   const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
   const [bookingDate, setBookingDate] = useState();
-  const [appMessage, setAppMessage] = useState('Waiting')
+  const [appMessage, setAppMessage] = useState('Menunggu Input Nomor BPJS')
   const [appMessage2, setAppMessage2] = useState('')
 
 
@@ -94,13 +94,16 @@ function ListBookingBpjs({ theme, navigation }: Props) {
     // setParam2()
     // console.log(header[0])
     // console.log(header[1])
-    axios.get('https://daengdeals.com/hec.php')
+    // http://us-central1-fbhecc.cloudfunctions.net/app/api/vclaim
+    // axios.get('https://daengdeals.com/hec.php')
+    axios.get('http://us-central1-fbhecc.cloudfunctions.net/app/api/vclaim')
       .then(function (response) {
-        setHeader(response.data.split(' '));
+        // console.log('response', response.data.d1)
+        setHeader([response.data.d1, response.data.d2]);
         setLoading(false)
       })
       .catch(function (error) {
-        console.log(error);
+        // console.log(error);
       });
 
   }, [loading]);
@@ -120,23 +123,28 @@ function ListBookingBpjs({ theme, navigation }: Props) {
       },
     })
       .then(function (response) {
-        console.log(response.data.metaData.message)
-        if (response.data.metaData.message !== 'Peserta Tidak Terdaftar') {
-          // console.log(response.data.response.peserta);
-          // console.log(response.data.response.list);
-          setAppMessage('Data ditemukan')
-          setResult(response.data);
-          setPasienNama(response.data.response.peserta.nama)
-          setPasienNoBpjs(response.data.response.peserta.noKartu)
-          setPasienSex(response.data.response.peserta.sex)
-          setPasienTanggalLahir(response.data.response.peserta.tglLahir)
+        console.log(response.data)
+        if (response.data.metaData.message !== 'No.Kartu Tidak Sesuai') {
+          if (response.data.metaData.message !== 'Peserta Tidak Terdaftar') {
+            // console.log(response.data.response.peserta);
+            // console.log(response.data.response.list);
+            setAppMessage('Data ditemukan')
+            setResult(response.data);
+            setPasienNama(response.data.response.peserta.nama)
+            setPasienNoBpjs(response.data.response.peserta.noKartu)
+            setPasienSex(response.data.response.peserta.sex)
+            setPasienTanggalLahir(response.data.response.peserta.tglLahir)
+          } else {
+            setAppMessage(response.data.metaData.message)
+          }
         } else {
-          setAppMessage('Data tidak ditemukan')
+          setAppMessage(response.data.metaData.message)
         }
       })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .catch(function (error) {
+        console.log(error);
+        setAppMessage(error)
+      });
   };
 
   // const showDateTimePicker = () => {
@@ -209,7 +217,7 @@ function ListBookingBpjs({ theme, navigation }: Props) {
             let latestOfflineQueue = result1.val().latestOfflineQueue + 1
             let antrianTotal = result1.val().antrianTotal + 1
             // start - rule nomor antrian disini
-            const ruleOnline = [4, 5, 9, 10, 14, 15, 19, 20, 24, 25, 29, 30, 34, 35, 39, 40]
+            const ruleOnline = [4, 5, 9, 10, 14, 15, 19, 20, 24, 25, 29, 30, 34, 35, 39, 40, 44, 45, 49, 50, 54, 55, 59, 60, 64, 65, 69, 70, 74, 75, 79, 80]
             if (ruleOnline.includes(latestOfflineQueue)) {
               latestOfflineQueue = latestOfflineQueue + 2
             }
